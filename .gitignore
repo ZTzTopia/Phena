@@ -1,0 +1,17 @@
+node_modules/
+dist/
+**/.env
+**/.env.local
+*.log
+.DS_Store
+coverage/
+.next/
+.turbo/
+*.tsbuildinfo
+__pycache__/
+.pytest_cache/
+.ruff_cache/
+.venv/
+venv/
+.eggs/
+*.egg-info/

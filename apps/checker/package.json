@@ -1,0 +1,7 @@
+{
+  "name": "@phena/checker",
+  "private": true,
+  "scripts": {
+    "test": "uv run --no-project --with pytest pytest"
+  }
+}
