@@ -1,19 +1,22 @@
 import { Scalar } from "@scalar/hono-api-reference";
-import { Effect } from "effect";
+import { Console, Effect, Logger, Schedule } from "effect";
 import { Hono } from "hono";
 import { openAPIRouteHandler } from "hono-openapi";
 import { cors } from "hono/cors";
-import { HTTPException } from "hono/http-exception";
 import "zod-openapi/extend";
+import { HTTPException } from "hono/http-exception";
+import { runPromise } from "./lib/runtime";
 import { checkConnectionsWithRetry } from "./lib/startup";
 import { effectLogger } from "./middleware/logger";
 import authRoutes from "./routes/auth";
 import challengeRoutes from "./routes/challenges";
 import configRoutes from "./routes/config";
+import contestRoutes from "./routes/contest";
 import eventRoutes from "./routes/events";
 import serviceRoutes from "./routes/services";
 import submissionRoutes from "./routes/submissions";
 import teamRoutes from "./routes/teams";
+import { ContestService } from "./services/contest";
 
 const routes = new Hono()
   .use(effectLogger())
@@ -30,6 +33,7 @@ const routes = new Hono()
   .route("/auth", authRoutes)
   .route("/challenges", challengeRoutes)
   .route("/config", configRoutes)
+  .route("/contest", contestRoutes)
   .route("/events", eventRoutes)
   .route("/services", serviceRoutes)
   .route("/submissions", submissionRoutes)
@@ -60,7 +64,8 @@ const main = new Hono()
   .get("/docs", Scalar({ url: "/openapi.json" }))
   .route("/", api);
 
-await Effect.runPromise(checkConnectionsWithRetry);
+await runPromise(checkConnectionsWithRetry);
+await runPromise(ContestService.use((svc) => svc.scheduleStartIfNeeded()));
 
 export default {
   port: process.env.PORT ? parseInt(process.env.PORT) : 3001,

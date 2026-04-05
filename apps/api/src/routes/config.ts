@@ -1,9 +1,10 @@
-import { CommonModel, ConfigModel } from "@phena/schema";
+import { CommonModel, ConfigKey, ConfigModel } from "@phena/schema";
 import { Hono } from "hono";
 import { describeRoute, resolver, validator } from "hono-openapi";
 import { runPromise } from "../lib/runtime";
 import { authMiddleware, requireRole } from "../middleware/auth";
 import { ConfigService } from "../services/config";
+import { ContestService } from "../services/contest";
 
 const app = new Hono()
   .use("/*", authMiddleware)
@@ -100,6 +101,15 @@ const app = new Hono()
       const body = c.req.valid("json");
 
       await runPromise(ConfigService.use((svc) => svc.setConfig(param.key, body.value)));
+
+      if (
+        param.key === ConfigKey.StartDate ||
+        param.key === ConfigKey.IsRunning ||
+        param.key === ConfigKey.TickDuration
+      ) {
+        await runPromise(ContestService.use((svc) => svc.reloadSchedule()));
+      }
+
       return c.json({ key: param.key, value: body.value });
     },
   );

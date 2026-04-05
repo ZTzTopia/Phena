@@ -6,11 +6,11 @@ const configDefaults: Record<string, unknown> = {
   [ConfigKey.ContestName]: "Phena CTF",
   [ConfigKey.TickDuration]: 60,
   [ConfigKey.IsRunning]: false,
-  [ConfigKey.CurrentTick]: 0,
-  [ConfigKey.CurrentRound]: 0,
+  [ConfigKey.CurrentTick]: 1,
+  [ConfigKey.CurrentRound]: 1,
   [ConfigKey.StartDate]: new Date().toISOString(),
-  [ConfigKey.TickPerRound]: 10,
-  [ConfigKey.TotalRounds]: 5,
+  [ConfigKey.TickPerRound]: 5,
+  [ConfigKey.TotalRounds]: 10,
   [ConfigKey.FlagTemplate]: "flag{...}",
 };
 

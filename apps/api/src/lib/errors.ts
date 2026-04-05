@@ -74,6 +74,12 @@ export class ServiceUpdateError extends Data.TaggedError("ServiceUpdateError")<{
   readonly statusCode = 400;
 }
 
+export class ConfigValidationError extends Data.TaggedError("ConfigValidationError")<{
+  message: string;
+}> {
+  readonly statusCode = 400;
+}
+
 export const domainErrors = [
   TeamNotFoundError,
   TeamNameTakenError,
@@ -89,6 +95,7 @@ export const domainErrors = [
   ServiceNotFoundError,
   ServiceCreateError,
   ServiceUpdateError,
+  ConfigValidationError,
 ] as const;
 
 export type DomainError = InstanceType<(typeof domainErrors)[number]>;

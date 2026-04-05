@@ -6,6 +6,7 @@ import { Effect } from "effect";
 import { Cause, Layer, ManagedRuntime } from "effect";
 import { HTTPException } from "hono/http-exception";
 import { DbLive } from "../db";
+import { ContestService } from "../services/contest";
 import { ServiceService } from "../services/service";
 import { TeamService } from "../services/team";
 import { domainErrors, type DomainError } from "./errors";
@@ -20,6 +21,7 @@ const AppEnvironment = Layer.mergeAll(
   SubmissionService.Default,
   TeamService.Default,
   ServiceService.Default,
+  ContestService.Default,
 );
 const runtime = ManagedRuntime.make(AppEnvironment);
 
@@ -49,7 +51,7 @@ export const runPromise = async <A, E, R>(effect: Effect.Effect<A, E, R>): Promi
     }
   }
 
-  Effect.runPromise(Effect.logError(exit.cause));
+  Effect.runSync(Effect.logError(exit.cause));
   throw new HTTPException(500, {
     message:
       process.env.NODE_ENV === "production" ? "Internal Server Error" : exit.cause.toString(),
