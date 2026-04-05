@@ -9,6 +9,7 @@ import { checkConnectionsWithRetry } from "./lib/startup";
 import { effectLogger } from "./middleware/logger";
 import authRoutes from "./routes/auth";
 import challengeRoutes from "./routes/challenges";
+import configRoutes from "./routes/config";
 import eventRoutes from "./routes/events";
 import serviceRoutes from "./routes/services";
 import submissionRoutes from "./routes/submissions";
@@ -28,6 +29,7 @@ const routes = new Hono()
   .get("/health", (c) => c.json({ status: "ok" }))
   .route("/auth", authRoutes)
   .route("/challenges", challengeRoutes)
+  .route("/config", configRoutes)
   .route("/events", eventRoutes)
   .route("/services", serviceRoutes)
   .route("/submissions", submissionRoutes)

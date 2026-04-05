@@ -1,4 +1,5 @@
 import { ChallengeService } from "@api/services/challenge";
+import { ConfigService } from "@api/services/config";
 import { SubmissionService } from "@api/services/submission";
 import { BunContext, BunRuntime } from "@effect/platform-bun";
 import { Effect } from "effect";
@@ -15,6 +16,7 @@ const AppEnvironment = Layer.mergeAll(
   RedisLive,
   BunContext.layer,
   ChallengeService.Default,
+  ConfigService.Default,
   SubmissionService.Default,
   TeamService.Default,
   ServiceService.Default,
