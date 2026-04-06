@@ -1,10 +1,9 @@
 import { Scalar } from "@scalar/hono-api-reference";
-import { Console, Effect, Logger, Schedule } from "effect";
 import { Hono } from "hono";
 import { openAPIRouteHandler } from "hono-openapi";
 import { cors } from "hono/cors";
-import "zod-openapi/extend";
 import { HTTPException } from "hono/http-exception";
+import "zod-openapi/extend";
 import { runPromise } from "./lib/runtime";
 import { checkConnectionsWithRetry } from "./lib/startup";
 import { effectLogger } from "./middleware/logger";
@@ -70,5 +69,6 @@ await runPromise(ContestService.use((svc) => svc.scheduleStartIfNeeded()));
 export default {
   port: process.env.PORT ? parseInt(process.env.PORT) : 3001,
   fetch: main.fetch,
+  development: process.env.NODE_ENV === "development",
 };
 export type AppType = typeof api;

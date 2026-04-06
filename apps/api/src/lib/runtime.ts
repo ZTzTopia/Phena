@@ -1,23 +1,24 @@
 import { ChallengeService } from "@api/services/challenge";
 import { ConfigService } from "@api/services/config";
+import { EventService } from "@api/services/event";
 import { SubmissionService } from "@api/services/submission";
 import { BunContext, BunRuntime } from "@effect/platform-bun";
-import { Effect } from "effect";
-import { Cause, Layer, ManagedRuntime } from "effect";
+import { Cause, Effect, Layer, ManagedRuntime } from "effect";
 import { HTTPException } from "hono/http-exception";
 import { DbLive } from "../db";
 import { ContestService } from "../services/contest";
 import { ServiceService } from "../services/service";
 import { TeamService } from "../services/team";
 import { domainErrors, type DomainError } from "./errors";
-import { RedisLive } from "./redis";
+import { RedisClient } from "./redis";
 
 const AppEnvironment = Layer.mergeAll(
   DbLive,
-  RedisLive,
+  RedisClient.Default,
   BunContext.layer,
   ChallengeService.Default,
   ConfigService.Default,
+  EventService.Default,
   SubmissionService.Default,
   TeamService.Default,
   ServiceService.Default,

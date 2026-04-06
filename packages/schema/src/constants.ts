@@ -6,3 +6,8 @@ export const COOKIE_OPTIONS = {
   path: "/",
   maxAge: 60 * 60 * 24 * 7,
 } as const;
+
+export const SSE_EVENT_CHANNELS = {
+  Global: "phena:events",
+  Team: (teamId: string) => `phena:team:${teamId}`,
+} as const;

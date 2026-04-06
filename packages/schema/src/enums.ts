@@ -26,3 +26,15 @@ export enum ConfigKey {
   TotalRounds = "total_rounds",
   FlagTemplate = "flag_template",
 }
+
+export enum SSEEventType {
+  Notification = "notification",
+  Activity = "activity",
+  Scoreboard = "scoreboard",
+  Tick = "tick",
+  ServiceStatus = "service_status",
+  ConfigChange = "config_change",
+  Log = "log",
+  Ping = "ping",
+  Connected = "connected",
+}

@@ -143,6 +143,23 @@ export class ContestService extends Effect.Service<ContestService>()("ContestSer
         }
       });
 
+    if (import.meta.hot) {
+      import.meta.hot.dispose(() => {
+        Effect.runSync(
+          Effect.gen(function* () {
+            if (globalSchedulerRef.__phenaSchedulerFiber) {
+              yield* Fiber.interrupt(globalSchedulerRef.__phenaSchedulerFiber);
+              globalSchedulerRef.__phenaSchedulerFiber = null;
+            }
+            if (globalSchedulerRef.__phenaScheduledStartFiber) {
+              yield* Fiber.interrupt(globalSchedulerRef.__phenaScheduledStartFiber);
+              globalSchedulerRef.__phenaScheduledStartFiber = null;
+            }
+          }),
+        );
+      });
+    }
+
     yield* Effect.succeed(null);
 
     return {

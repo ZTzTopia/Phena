@@ -1,3 +1,5 @@
+import type { SSEEventType } from "./enums";
+
 export type Role = "admin" | "team";
 
 export type JWTPayload = {
@@ -5,4 +7,10 @@ export type JWTPayload = {
   role: Role;
   iat: number;
   exp: number;
+};
+
+export type SSEEvent<T = unknown> = {
+  type: SSEEventType;
+  data: T;
+  timestamp: number;
 };

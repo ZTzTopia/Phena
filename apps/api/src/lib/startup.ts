@@ -1,7 +1,7 @@
 import { sql } from "drizzle-orm";
 import { Data, Effect, Schedule } from "effect";
 import { db } from "../db";
-import { redis } from "./redis";
+import { RedisClient } from "./redis";
 
 export class PostgresConnectionError extends Data.TaggedError("PostgresConnectionError")<{
   readonly cause: unknown;
@@ -18,12 +18,10 @@ const checkPostgres = Effect.tryPromise({
   catch: (e) => new PostgresConnectionError({ cause: e }),
 }).pipe(Effect.tap(() => Effect.logInfo("Postgres connected")));
 
-const checkRedis = Effect.tryPromise({
-  try: async () => {
-    await redis.ping();
-  },
-  catch: (e) => new RedisConnectionError({ cause: e }),
-}).pipe(Effect.tap(() => Effect.logInfo("Redis connected")));
+const checkRedis = Effect.flatMap(RedisClient, (r) => r.ping).pipe(
+  Effect.tap(() => Effect.logInfo("Redis connected")),
+  Effect.catchAll((e) => new RedisConnectionError({ cause: e })),
+);
 
 const checkConnections = Effect.gen(function* () {
   yield* Effect.logInfo("Checking Postgres connection...");
