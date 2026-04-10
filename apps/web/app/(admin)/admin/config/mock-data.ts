@@ -15,8 +15,7 @@ export interface MockConfig {
   system: {
     checkerPoolSize: number;
     checkerTimeout: number;
-    flagLength: number;
-    flagPrefix: string | null;
+    flagTemplate: string;
   };
   battleMap: {
     style: string;
@@ -46,8 +45,7 @@ export const mockConfig: MockConfig = {
   system: {
     checkerPoolSize: 10,
     checkerTimeout: 30,
-    flagLength: 32,
-    flagPrefix: "PHENA{",
+    flagTemplate: "PHENA{{uuid}}",
   },
   battleMap: {
     style: "fantasy",
