@@ -36,14 +36,13 @@
     "format": "oxfmt -c ../../.oxfmtrc.json .",
     "format:check": "oxfmt -c ../../.oxfmtrc.json --check .",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run"
+    "test": "bun test"
   },
   "dependencies": {
     "zod": "catalog:"
   },
   "devDependencies": {
     "tsup": "catalog:",
-    "typescript": "catalog:",
-    "vitest": "catalog:"
+    "typescript": "catalog:"
   }
 }

@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect } from "bun:test";
 
 describe("ContestService startContest and stopContest", () => {
   describe("is_running state checks", () => {

@@ -17,8 +17,8 @@
     "format": "oxfmt -c ../../.oxfmtrc.json .",
     "format:check": "oxfmt -c ../../.oxfmtrc.json --check .",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run",
-    "test:watch": "vitest",
+    "test": "bun test",
+    "test:watch": "bun test --watch",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:push": "drizzle-kit push",
@@ -46,10 +46,8 @@
     "@drizzle-team/brocli": "^0.10.2",
     "@types/bun": "catalog:",
     "@types/pg": "^8.20.0",
-    "@vitest/coverage-c8": "^0.33.0",
     "drizzle-kit": "^1.0.0-beta.19",
     "drizzle-seed": "^1.0.0-beta.19",
-    "typescript": "catalog:",
-    "vitest": "catalog:"
+    "typescript": "catalog:"
   }
 }
