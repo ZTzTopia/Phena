@@ -20,6 +20,24 @@ export const ConfigModel = {
       value: z.string(),
     }),
   ),
+  flagPreviewRequest: z.object({
+    template: z.string(),
+  }),
+  flagPreviewResponse: z.object({
+    samples: z.array(
+      z.object({
+        context: z.object({
+          round: z.number(),
+          tick: z.number(),
+          challengeId: z.number(),
+          teamId: z.number(),
+          serviceId: z.number(),
+          index: z.number(),
+        }),
+        result: z.string(),
+      }),
+    ),
+  }),
 } as const;
 
 export type ConfigModel = {

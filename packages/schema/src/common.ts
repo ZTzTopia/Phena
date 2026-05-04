@@ -32,6 +32,9 @@ export const CommonModel = {
   errorResponse: z.object({
     error: z.string().optional(),
   }),
+  multiErrorResponse: z.object({
+    errors: z.array(z.string()),
+  }),
 } as const;
 
 export type CommonModel = {

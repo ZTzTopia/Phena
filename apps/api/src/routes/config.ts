@@ -1,10 +1,16 @@
 import { CommonModel, ConfigKey, ConfigModel } from "@phena/schema";
 import { Hono } from "hono";
 import { describeRoute, resolver, validator } from "hono-openapi";
+import { evaluateTemplate, validateTemplate } from "../lib/flag-expression";
 import { runPromise } from "../lib/runtime";
 import { authMiddleware, requireRole } from "../middleware/auth";
 import { ConfigService } from "../services/config";
 import { ContestService } from "../services/contest";
+
+const FLAG_PREVIEW_CONTEXTS = [
+  { round: 1, tick: 1, challengeId: 1, teamId: 1, serviceId: 1, index: 0 },
+  { round: 5, tick: 3, challengeId: 42, teamId: 7, serviceId: 12, index: 2 },
+] as const;
 
 const app = new Hono()
   .use("/*", authMiddleware)
@@ -111,6 +117,48 @@ const app = new Hono()
       }
 
       return c.json({ key: param.key, value: body.value });
+    },
+  )
+  .post(
+    "/flag-preview",
+    describeRoute({
+      responses: {
+        200: {
+          description: "Flag template preview results",
+          content: {
+            "application/json": {
+              schema: resolver(ConfigModel.flagPreviewResponse),
+            },
+          },
+        },
+        400: {
+          description: "Invalid template",
+          content: {
+            "application/json": {
+              schema: resolver(CommonModel.multiErrorResponse),
+            },
+          },
+        },
+      },
+    }),
+    validator("json", ConfigModel.flagPreviewRequest),
+    async (c) => {
+      const { template } = c.req.valid("json");
+      const validation = validateTemplate(template);
+
+      if (!validation.valid) {
+        return c.json({ errors: validation.errors }, 400);
+      }
+
+      const samples = FLAG_PREVIEW_CONTEXTS.map((ctx) => {
+        const result = evaluateTemplate(template, ctx);
+        return {
+          context: { ...ctx },
+          result: result instanceof Error ? "Error" : result,
+        };
+      });
+
+      return c.json({ samples });
     },
   );
 

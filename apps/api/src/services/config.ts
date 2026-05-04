@@ -1,3 +1,4 @@
+import { DEFAULT_FLAG_TEMPLATE } from "@api/lib/flag-expression";
 import { ConfigKey } from "@phena/schema";
 import { Effect } from "effect";
 import { ConfigRepository } from "../repositories/config";
@@ -11,7 +12,7 @@ const configDefaults: Record<string, unknown> = {
   [ConfigKey.StartDate]: new Date().toISOString(),
   [ConfigKey.TickPerRound]: 5,
   [ConfigKey.TotalRounds]: 10,
-  [ConfigKey.FlagTemplate]: "flag{...}",
+  [ConfigKey.FlagTemplate]: DEFAULT_FLAG_TEMPLATE,
 };
 
 export class ConfigService extends Effect.Service<ConfigService>()("ConfigService", {

@@ -1,12 +1,14 @@
 "use client";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@phena/ui/components/tabs";
+import { useQuery } from "@tanstack/react-query";
+import { parseResponse } from "hono/client";
 import { CogIcon, FlagIcon, SettingsIcon, TrophyIcon } from "lucide-react";
 import { ContestConfigCard } from "@/app/(admin)/admin/config/_components/contest-config-card";
 import { FlagConfigCard } from "@/app/(admin)/admin/config/_components/flag-config-card";
 import { ScoringConfigCard } from "@/app/(admin)/admin/config/_components/scoring-config-card";
 import { SystemConfigCard } from "@/app/(admin)/admin/config/_components/system-config-card";
-import { mockConfig } from "./mock-data";
+import { client } from "@/lib/api-client";
 
 function Loading() {
   return (
@@ -16,12 +18,55 @@ function Loading() {
   );
 }
 
-export default function ConfigPage() {
-  const config = mockConfig;
+interface ConfigData {
+  contestName: string;
+  tickDuration: number;
+  roundDuration: number;
+  startDate: string;
+  endDate: string;
+  attackPoints: number;
+  defensePoints: number;
+  slaWeight: number;
+  firstBloodBonus: number | null;
+  checkerPoolSize: number;
+  checkerTimeout: number;
+  flagTemplate: string;
+  [key: string]: unknown;
+}
 
-  if (!config) {
+export default function ConfigPage() {
+  const { data: configData, isLoading } = useQuery({
+    queryKey: ["admin", "config"],
+    queryFn: async () => {
+      const res = await parseResponse(client.api.config.$get());
+      return res as ConfigData;
+    },
+  });
+
+  if (isLoading) {
     return <Loading />;
   }
+
+  const contest = {
+    name: configData?.contestName ?? "Phena CTF",
+    tickDuration: configData?.tickDuration ?? 60,
+    roundDuration: configData?.roundDuration ?? 600,
+    startDate: configData?.startDate ?? new Date().toISOString(),
+    endDate: configData?.endDate ?? new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+  };
+
+  const scoring = {
+    attackPoints: configData?.attackPoints ?? 100,
+    defensePoints: configData?.defensePoints ?? 50,
+    slaWeight: configData?.slaWeight ?? 0.3,
+    firstBloodBonus: configData?.firstBloodBonus ?? null,
+  };
+
+  const system = {
+    checkerPoolSize: configData?.checkerPoolSize ?? 10,
+    checkerTimeout: configData?.checkerTimeout ?? 30,
+    flagTemplate: configData?.flagTemplate ?? "PHENA{{{uuid}}}",
+  };
 
   return (
     <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
@@ -51,19 +96,19 @@ export default function ConfigPage() {
         </TabsList>
 
         <TabsContent value="contest" className="mt-6">
-          <ContestConfigCard initialValue={config.contest} />
+          <ContestConfigCard initialValue={contest} />
         </TabsContent>
 
         <TabsContent value="scoring" className="mt-6">
-          <ScoringConfigCard initialValue={config.scoring} />
+          <ScoringConfigCard initialValue={scoring} />
         </TabsContent>
 
         <TabsContent value="flags" className="mt-6">
-          <FlagConfigCard initialValue={config.system.flagTemplate} />
+          <FlagConfigCard initialValue={system.flagTemplate} />
         </TabsContent>
 
         <TabsContent value="system" className="mt-6">
-          <SystemConfigCard initialValue={config.system} />
+          <SystemConfigCard initialValue={system} />
         </TabsContent>
       </Tabs>
     </div>
