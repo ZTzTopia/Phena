@@ -1,14 +1,13 @@
 "use client";
 
-import { MinusIcon, PlusIcon } from "lucide-react";
-import * as React from "react";
-
 import {
   InputGroup,
   InputGroupAddon,
   InputGroupButton,
   InputGroupInput,
 } from "@phena/ui/components/input-group";
+import { MinusIcon, PlusIcon } from "lucide-react";
+import * as React from "react";
 
 export type NumberInputProps = Omit<
   React.ComponentProps<"input">,
@@ -115,10 +114,7 @@ function NumberInput({
       });
 
       setHasValidationError(!result.valid);
-
-      if (result.valid) {
-        onValueChange?.(result.value);
-      }
+      onValueChange?.(result.value);
     },
     [allowEmpty, max, min, onValueChange, step],
   );
@@ -172,9 +168,7 @@ function NumberInput({
 
   return (
     <InputGroup data-disabled={disabled || undefined}>
-      {startAddon ? (
-        <InputGroupAddon align="inline-start">{startAddon}</InputGroupAddon>
-      ) : null}
+      {startAddon ? <InputGroupAddon align="inline-start">{startAddon}</InputGroupAddon> : null}
 
       <InputGroupButton
         type="button"
@@ -210,9 +204,7 @@ function NumberInput({
         <PlusIcon data-icon="inline-end" />
       </InputGroupButton>
 
-      {endAddon ? (
-        <InputGroupAddon align="inline-end">{endAddon}</InputGroupAddon>
-      ) : null}
+      {endAddon ? <InputGroupAddon align="inline-end">{endAddon}</InputGroupAddon> : null}
     </InputGroup>
   );
 }
