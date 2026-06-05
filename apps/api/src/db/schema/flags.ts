@@ -1,6 +1,7 @@
 import {
   bigint,
   bigserial,
+  index,
   integer,
   pgTable,
   text,
@@ -27,6 +28,7 @@ export const flags = pgTable(
   },
   (table) => [
     uniqueIndex("flags_unique_idx").on(table.serviceId, table.index, table.round, table.tick),
+    index("flags_created_at_idx").on(table.createdAt),
   ],
 );
 

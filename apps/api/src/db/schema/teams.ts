@@ -1,4 +1,4 @@
-import { bigserial, pgTable, text, timestamp, uniqueIndex } from "drizzle-orm/pg-core";
+import { bigserial, index, pgTable, text, timestamp, uniqueIndex } from "drizzle-orm/pg-core";
 import { nanoid } from "nanoid";
 
 export const teams = pgTable(
@@ -26,6 +26,7 @@ export const teams = pgTable(
   (table) => [
     uniqueIndex("teams_public_id_idx").on(table.publicId),
     uniqueIndex("teams_name_idx").on(table.name),
+    index("teams_created_at_idx").on(table.createdAt),
   ],
 );
 

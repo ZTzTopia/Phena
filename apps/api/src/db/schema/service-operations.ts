@@ -34,6 +34,7 @@ export const serviceOperations = pgTable(
     index("service_operations_service_id_idx").on(table.serviceId),
     index("service_operations_admin_id_idx").on(table.adminId),
     index("service_operations_status_idx").on(table.status),
+    index("service_operations_created_at_idx").on(table.createdAt),
   ],
 );
 

@@ -2,6 +2,7 @@ import {
   bigint,
   bigserial,
   boolean,
+  index,
   integer,
   jsonb,
   pgTable,
@@ -27,7 +28,10 @@ export const sshConfigs = pgTable(
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at").notNull().defaultNow(),
   },
-  (table) => [uniqueIndex("ssh_configs_team_id_idx").on(table.teamId)],
+  (table) => [
+    uniqueIndex("ssh_configs_team_id_idx").on(table.teamId),
+    index("ssh_configs_created_at_idx").on(table.createdAt),
+  ],
 );
 
 export type SshConfig = typeof sshConfigs.$inferSelect;

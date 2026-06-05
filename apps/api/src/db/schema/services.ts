@@ -26,6 +26,7 @@ export const services = pgTable(
     index("services_team_id_idx").on(table.teamId),
     index("services_challenge_id_idx").on(table.challengeId),
     index("services_status_idx").on(table.status),
+    index("services_created_at_idx").on(table.createdAt),
   ],
 );
 

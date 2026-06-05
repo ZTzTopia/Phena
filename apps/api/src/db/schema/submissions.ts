@@ -1,12 +1,13 @@
+import { sql } from "drizzle-orm";
 import {
   bigint,
   bigserial,
+  index,
   integer,
   pgEnum,
   pgTable,
   text,
   timestamp,
-  index,
 } from "drizzle-orm/pg-core";
 import { flags } from "./flags";
 import { teams } from "./teams";
@@ -40,6 +41,8 @@ export const submissions = pgTable(
     index("submissions_flag_id_idx").on(table.flagId),
     index("submissions_round_tick_idx").on(table.round, table.tick),
     index("submissions_status_idx").on(table.status),
+    index("submissions_value_search_idx").using("gin", sql`to_tsvector('english', ${table.value})`),
+    index("submissions_created_at_id_idx").on(table.createdAt, table.id),
   ],
 );
 

@@ -27,6 +27,7 @@ export const serviceScoresPerTick = pgTable(
     index("service_scores_team_id_idx").on(table.teamId),
     index("service_scores_service_id_idx").on(table.serviceId),
     index("service_scores_round_tick_idx").on(table.round, table.tick),
+    index("service_scores_created_at_idx").on(table.createdAt),
   ],
 );
 

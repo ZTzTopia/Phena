@@ -1,4 +1,12 @@
-import { pgTable, text, integer, timestamp, bigserial, uniqueIndex } from "drizzle-orm/pg-core";
+import {
+  pgTable,
+  text,
+  integer,
+  timestamp,
+  bigserial,
+  uniqueIndex,
+  index,
+} from "drizzle-orm/pg-core";
 import { nanoid } from "nanoid";
 
 export const challenges = pgTable(
@@ -23,7 +31,10 @@ export const challenges = pgTable(
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at").notNull().defaultNow(),
   },
-  (table) => [uniqueIndex("challenges_public_id_idx").on(table.publicId)],
+  (table) => [
+    uniqueIndex("challenges_public_id_idx").on(table.publicId),
+    index("challenges_created_at_idx").on(table.createdAt),
+  ],
 );
 
 export type Challenge = typeof challenges.$inferSelect;

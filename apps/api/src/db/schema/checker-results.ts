@@ -33,6 +33,7 @@ export const checkerResults = pgTable(
   (table) => [
     index("checker_results_service_id_idx").on(table.serviceId),
     index("checker_results_round_tick_idx").on(table.round, table.tick),
+    index("checker_results_created_at_idx").on(table.createdAt),
   ],
 );
 

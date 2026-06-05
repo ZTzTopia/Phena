@@ -19,6 +19,7 @@ export const systemLogs = pgTable(
     index("system_logs_team_id_idx").on(table.teamId),
     index("system_logs_round_tick_idx").on(table.round, table.tick),
     index("system_logs_type_idx").on(table.type),
+    index("system_logs_created_at_idx").on(table.createdAt),
   ],
 );
 
