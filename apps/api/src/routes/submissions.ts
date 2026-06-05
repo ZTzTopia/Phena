@@ -111,7 +111,7 @@ const app = new Hono()
       if (!team) {
         return sJson(c, SubmissionsModel.submissionsHistoryResponse, {
           submissions: [],
-          pagination: { total: 0, page: 0, limit: 0, totalPages: 0 },
+          pagination: { total: 0, page: page, limit: limit, totalPages: 0 },
         });
       }
 
@@ -122,6 +122,7 @@ const app = new Hono()
             : svc.getByTeamId(team.id, { page, limit, search }),
         ),
       );
+
       return sJson(c, SubmissionsModel.submissionsHistoryResponse, {
         submissions: result.submissions,
         pagination: result.pagination,

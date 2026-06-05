@@ -3,11 +3,12 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { DetailedError, parseResponse } from "hono/client";
 import { useState } from "react";
+import { usePaginatedSearchState } from "@/hooks/use-paginated-search-state";
 import { toast } from "sonner";
 import { MissingServicesAlert } from "@/app/(admin)/admin/services/_components/service-missing-alert";
 import Loading from "@/app/(admin)/loading";
 import { ConfirmDialog } from "@/components/confirm-dialog";
-import { DataTable } from "@/components/data-table";
+import { ServerDataTable } from "@/components/data-table";
 import { client } from "@/lib/api-client";
 import type { ServiceResponse } from "./_types";
 import { getServicesColumns } from "./columns";
@@ -17,12 +18,29 @@ export default function ServicesPage() {
 
   const [resetConfirmOpen, setResetConfirmOpen] = useState(false);
   const [serviceToReset, setServiceToReset] = useState<ServiceResponse | null>(null);
+  const {
+    pageIndex,
+    pageSize,
+    searchInput,
+    debouncedSearch,
+    setPageIndex,
+    setPageSize,
+    setSearchInput,
+  } = usePaginatedSearchState({ initialPageSize: 20 });
 
-  const { data: services, isLoading } = useQuery({
-    queryKey: ["admin", "services"],
-    queryFn: async () => await parseResponse(client.api.services.$get()),
-    select: (data) => data.services,
+  const { data, isLoading, isFetching } = useQuery({
+    queryKey: ["admin", "services", { page: pageIndex + 1, limit: pageSize, search: debouncedSearch }],
+    queryFn: async () =>
+      parseResponse(
+        client.api.services.$get({
+          query: { page: String(pageIndex + 1), limit: String(pageSize), search: debouncedSearch },
+        }),
+      ),
+    placeholderData: (previousData) => previousData,
   });
+
+  const services = data?.services ?? [];
+  const pagination = data?.pagination;
 
   const autoCreateMutation = useMutation({
     mutationFn: async () => {
@@ -125,11 +143,23 @@ export default function ServicesPage() {
       />
 
       <div className="px-4 lg:px-6">
-        <DataTable
+        <ServerDataTable
           columns={columns}
-          data={services ?? []}
+          data={services}
           filterPlaceholder="Search services..."
           noResultsText="No services found."
+          pageCount={pagination?.totalPages ?? 1}
+          totalRows={pagination?.total}
+          pageIndex={pageIndex}
+          pageSize={pageSize}
+          onPageChange={setPageIndex}
+          onPageSizeChange={(size) => {
+            setPageSize(size);
+            setPageIndex(0);
+          }}
+          searchValue={searchInput}
+          onSearchChange={setSearchInput}
+          isLoading={isFetching}
         />
       </div>
 

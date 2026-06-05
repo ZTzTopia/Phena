@@ -1,4 +1,5 @@
 import z from "zod/v4";
+import { PaginationMetaSchema } from "./common";
 
 export const ServiceStatusEnum = z.enum(["up", "down", "pending"]);
 export type ServiceStatus = z.infer<typeof ServiceStatusEnum>;
@@ -84,6 +85,7 @@ export const ServiceModel = {
   }),
   servicesListResponse: z.object({
     services: z.array(ServiceSchema),
+    pagination: PaginationMetaSchema,
   }),
   serviceDetailResponse: z.object({
     service: ServiceSchema,

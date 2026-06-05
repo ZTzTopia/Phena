@@ -7,6 +7,7 @@ import {
   TeamNotFoundError,
   TeamUpdateError,
 } from "../lib/errors";
+import { getPaginationMeta, type PaginationParams } from "../lib/pagination";
 import { TeamRepository } from "../repositories/teams";
 
 export { TeamCreateError, TeamNameTakenError, TeamNotFoundError, TeamUpdateError };
@@ -38,9 +39,23 @@ export class TeamService extends Effect.Service<TeamService>()("TeamService", {
 
     const getByPublicId = (publicId: string) => TeamRepository.findByPublicId(publicId);
 
-    const getAll = () => TeamRepository.findAll();
+    const getAll = ({ page, limit, search }: PaginationParams) =>
+      Effect.gen(function* () {
+        const result = yield* TeamRepository.findAll({ page, limit, search });
+        return {
+          teams: result.data,
+          pagination: getPaginationMeta(page, limit, result.total),
+        };
+      });
 
-    const getAllWithoutAdmins = () => TeamRepository.findAllWithoutAdmins();
+    const getAllWithoutAdmins = ({ page, limit, search }: PaginationParams) =>
+      Effect.gen(function* () {
+        const result = yield* TeamRepository.findAllWithoutAdmins({ page, limit, search });
+        return {
+          teams: result.data,
+          pagination: getPaginationMeta(page, limit, result.total),
+        };
+      });
 
     const update = (publicId: string, data: Partial<NewTeam>) =>
       Effect.gen(function* () {

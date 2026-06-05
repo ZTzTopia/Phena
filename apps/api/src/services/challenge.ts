@@ -2,6 +2,7 @@ import type { NewChallenge } from "@api/db/schema/challenges";
 import { Effect } from "effect";
 import { ChallengeCreateError, ChallengeNotFoundError, ChallengeUpdateError } from "../lib/errors";
 import { deleteFile, saveFile } from "../lib/file-storage";
+import { getPaginationMeta, type PaginationParams } from "../lib/pagination";
 import { ChallengeRepository } from "../repositories/challenges";
 
 export class ChallengeService extends Effect.Service<ChallengeService>()("ChallengeService", {
@@ -20,7 +21,14 @@ export class ChallengeService extends Effect.Service<ChallengeService>()("Challe
 
     const getByPublicId = (publicId: string) => ChallengeRepository.findByPublicId(publicId);
 
-    const getAll = () => ChallengeRepository.findAll();
+    const getAll = ({ page, limit, search }: PaginationParams) =>
+      Effect.gen(function* () {
+        const result = yield* ChallengeRepository.findAll({ page, limit, search });
+        return {
+          challenges: result.data,
+          pagination: getPaginationMeta(page, limit, result.total),
+        };
+      });
 
     const update = (publicId: string, data: Partial<NewChallenge>) =>
       Effect.gen(function* () {

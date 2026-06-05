@@ -11,33 +11,39 @@ import { mockTickData } from "../mock-data";
 export function ContestOverview() {
   const tickData = mockTickData;
 
-  const { data: teams } = useQuery({
-    queryKey: ["admin", "teams"],
-    queryFn: async () => await parseResponse(client.api.teams.$get()),
-    select: (data) => data.teams,
+  const { data: teamsData } = useQuery({
+    queryKey: ["admin", "teams", { page: 1, limit: 1 }],
+    queryFn: async () =>
+      parseResponse(
+        client.api.teams.$get({
+          query: { page: "1", limit: "1" },
+        }),
+      ),
   });
 
-  const { data: challenges } = useQuery({
-    queryKey: ["admin", "challenges"],
-    queryFn: async () => await parseResponse(client.api.challenges.$get()),
-    select: (data) => data.challenges,
+  const { data: challengesData } = useQuery({
+    queryKey: ["admin", "challenges", { page: 1, limit: 1 }],
+    queryFn: async () =>
+      parseResponse(
+        client.api.challenges.$get({
+          query: { page: "1", limit: "1" },
+        }),
+      ),
   });
 
-  const { data: services } = useQuery({
-    queryKey: ["admin", "services"],
-    queryFn: async () => parseResponse(client.api.services.$get()),
-    select: (data) => data.services,
+  const { data: servicesData } = useQuery({
+    queryKey: ["admin", "services", { page: 1, limit: 1 }],
+    queryFn: async () =>
+      parseResponse(
+        client.api.services.$get({
+          query: { page: "1", limit: "1" },
+        }),
+      ),
   });
 
-  const teamsCount = teams?.length ?? 0;
-  const challengesCount = challenges?.length ?? 0;
-  const servicesCount = services?.length ?? 0;
-  const currentRound = tickData?.currentRound ?? 0;
-  const releasedCount =
-    challenges?.filter((challenge) => {
-      const releaseRound = challenge.releaseRound ?? Number.MAX_SAFE_INTEGER;
-      return currentRound >= releaseRound;
-    }).length ?? 0;
+  const teamsCount = teamsData?.pagination.total ?? 0;
+  const challengesCount = challengesData?.pagination.total ?? 0;
+  const servicesCount = servicesData?.pagination.total ?? 0;
   const isRunning = tickData?.isRunning ?? false;
 
   return (
@@ -64,9 +70,9 @@ export function ContestOverview() {
         </CardHeader>
         <CardContent>
           <div className="text-3xl font-bold tabular-nums">
-            {releasedCount}/{challengesCount}
+            {challengesCount}
           </div>
-          <p className="text-muted-foreground text-xs">Released / Total</p>
+          <p className="text-muted-foreground text-xs">Total</p>
         </CardContent>
       </Card>
 

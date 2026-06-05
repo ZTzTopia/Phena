@@ -1,7 +1,9 @@
 import { challenges, type NewChallenge } from "@api/db/schema/challenges";
-import { eq } from "drizzle-orm";
+import { eq, relationsFilterToSQL } from "drizzle-orm";
 import { Effect } from "effect";
+import type { WhereClause } from "../db/types";
 import { Db } from "../db";
+import { getOffset, type PaginationParams } from "../lib/pagination";
 
 export abstract class ChallengeRepository {
   static findByPublicId(publicId: string) {
@@ -9,22 +11,44 @@ export abstract class ChallengeRepository {
       Effect.tryPromise({
         try: async () =>
           env.db.query.challenges.findFirst({
-            where: {
-              publicId,
-            },
+            where: { publicId },
           }),
         catch: (e) => new Error(String(e)),
       }),
     );
   }
 
-  static findAll() {
-    return Effect.flatMap(Db, (env) =>
-      Effect.tryPromise({
-        try: async () => env.db.query.challenges.findMany(),
-        catch: (e) => new Error(String(e)),
-      }),
-    );
+  static findAll({ page, limit, search }: PaginationParams) {
+    const offset = getOffset(page, limit);
+    return Effect.flatMap(Db, (env) => {
+      const where: WhereClause<"challenges"> | undefined = search
+        ? {
+            OR: [
+              { title: { ilike: `%${search}%` } },
+              { description: { ilike: `%${search}%` } },
+              { category: { ilike: `%${search}%` } },
+              { publicId: { ilike: `%${search}%` } },
+            ],
+          }
+        : undefined;
+
+      const dataQuery = Effect.tryPromise(() =>
+        env.db.query.challenges.findMany({
+          where,
+          limit,
+          offset,
+          orderBy: { createdAt: "desc" },
+        }),
+      );
+
+      const totalQuery = Effect.tryPromise(() =>
+        env.db.$count(challenges, where ? relationsFilterToSQL(challenges, where) : undefined),
+      );
+
+      return Effect.all([dataQuery, totalQuery]).pipe(
+        Effect.map(([data, total]) => ({ data, total: Number(total ?? 0) })),
+      );
+    });
   }
 
   static create(data: NewChallenge) {

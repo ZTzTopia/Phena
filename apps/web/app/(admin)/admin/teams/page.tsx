@@ -13,11 +13,12 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { DetailedError, parseResponse } from "hono/client";
 import { PlusIcon } from "lucide-react";
 import { useState } from "react";
+import { usePaginatedSearchState } from "@/hooks/use-paginated-search-state";
 import { toast } from "sonner";
 import { TeamForm } from "@/app/(admin)/admin/teams/_components/team-form";
 import Loading from "@/app/(admin)/loading";
 import { ConfirmDialog } from "@/components/confirm-dialog";
-import { DataTable } from "@/components/data-table";
+import { ServerDataTable } from "@/components/data-table";
 import { client } from "@/lib/api-client";
 import type { TeamResponse } from "./_types";
 import { getTeamColumns } from "./columns";
@@ -34,12 +35,29 @@ export default function TeamsPage() {
   const [selectedTeam, setSelectedTeam] = useState<TeamResponse | null>(null);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [teamToDelete, setTeamToDelete] = useState<string | null>(null);
+  const {
+    pageIndex,
+    pageSize,
+    searchInput,
+    debouncedSearch,
+    setPageIndex,
+    setPageSize,
+    setSearchInput,
+  } = usePaginatedSearchState({ initialPageSize: 20 });
 
-  const { data: teams, isLoading } = useQuery({
-    queryKey: ["admin", "teams"],
-    queryFn: async () => await parseResponse(client.api.teams.$get()),
-    select: (data) => data.teams,
+  const { data, isLoading, isFetching } = useQuery({
+    queryKey: ["admin", "teams", { page: pageIndex + 1, limit: pageSize, search: debouncedSearch }],
+    queryFn: async () =>
+      parseResponse(
+        client.api.teams.$get({
+          query: { page: String(pageIndex + 1), limit: String(pageSize), search: debouncedSearch },
+        }),
+      ),
+    placeholderData: (previousData) => previousData,
   });
+
+  const teams = data?.teams ?? [];
+  const pagination = data?.pagination;
 
   const createMutation = useMutation({
     mutationFn: async (data: TeamModel["createTeam"]) => {
@@ -184,11 +202,23 @@ export default function TeamsPage() {
       </div>
 
       <div className="px-4 lg:px-6">
-        <DataTable<TeamResponse>
+        <ServerDataTable<TeamResponse>
           columns={columns}
-          data={teams ?? []}
+          data={teams}
           filterPlaceholder="Search teams..."
           noResultsText='No teams yet. Click "New Team" to create one.'
+          pageCount={pagination?.totalPages ?? 1}
+          totalRows={pagination?.total}
+          pageIndex={pageIndex}
+          pageSize={pageSize}
+          onPageChange={setPageIndex}
+          onPageSizeChange={(size) => {
+            setPageSize(size);
+            setPageIndex(0);
+          }}
+          searchValue={searchInput}
+          onSearchChange={setSearchInput}
+          isLoading={isFetching}
         />
       </div>
 

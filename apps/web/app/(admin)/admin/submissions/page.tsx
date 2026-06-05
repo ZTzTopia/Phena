@@ -2,27 +2,23 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { parseResponse } from "hono/client";
-import { useCallback, useEffect, useState } from "react";
-import { DataTable } from "@/components/data-table";
+import { ServerDataTable } from "@/components/data-table";
 import { client } from "@/lib/api-client";
 import { submissionsColumns } from "./columns";
+import { usePaginatedSearchState } from "@/hooks/use-paginated-search-state";
 
 export default function SubmissionsPage() {
-  const [pageIndex, setPageIndex] = useState(0);
-  const [pageSize, setPageSize] = useState(20);
-  const [searchInput, setSearchInput] = useState("");
-  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const {
+    pageIndex,
+    pageSize,
+    searchInput,
+    debouncedSearch,
+    setPageIndex,
+    setPageSize,
+    setSearchInput,
+  } = usePaginatedSearchState({ initialPageSize: 20 });
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedSearch(searchInput);
-      setPageIndex(0);
-    }, 300);
-
-    return () => clearTimeout(timer);
-  }, [searchInput]);
-
-  const { data, isLoading, isFetching } = useQuery({
+  const { data, isFetching } = useQuery({
     queryKey: [
       "admin",
       "submissions",
@@ -39,27 +35,6 @@ export default function SubmissionsPage() {
     placeholderData: (previousData) => previousData,
   });
 
-  const handleSearchChange = useCallback((newSearch: string) => {
-    setSearchInput(newSearch);
-  }, []);
-
-  const handlePageChange = useCallback((newPageIndex: number) => {
-    setPageIndex(newPageIndex);
-  }, []);
-
-  const handlePageSizeChange = useCallback((newPageSize: number) => {
-    setPageSize(newPageSize);
-    setPageIndex(0);
-  }, []);
-
-  if (isLoading) {
-    return (
-      <div className="flex h-full items-center justify-center">
-        <div className="text-muted-foreground">Loading...</div>
-      </div>
-    );
-  }
-
   return (
     <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
       <div className="px-4 lg:px-6">
@@ -68,19 +43,22 @@ export default function SubmissionsPage() {
       </div>
 
       <div className="px-4 lg:px-6">
-        <DataTable
+        <ServerDataTable
           columns={submissionsColumns}
           data={data?.submissions ?? []}
           filterPlaceholder="Search submissions..."
           noResultsText="No submissions found"
-          initialPageSize={pageSize}
-          pageCount={data?.pagination.totalPages}
+          pageCount={data?.pagination.totalPages ?? 1}
           totalRows={data?.pagination.total}
           pageIndex={pageIndex}
-          onPageChange={handlePageChange}
-          onPageSizeChange={handlePageSizeChange}
+          pageSize={pageSize}
+          onPageChange={setPageIndex}
+          onPageSizeChange={(size: number) => {
+            setPageSize(size);
+            setPageIndex(0);
+          }}
           searchValue={searchInput}
-          onSearchChange={handleSearchChange}
+          onSearchChange={setSearchInput}
           isLoading={isFetching}
         />
       </div>

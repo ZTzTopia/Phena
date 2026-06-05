@@ -2,28 +2,47 @@ import type { NewServiceOperation } from "@api/db/schema/service-operations";
 import type { NewService } from "@api/db/schema/services";
 import { TeamRepository } from "@api/repositories/teams";
 import { Effect } from "effect";
-import { ServiceNotFoundError, ServiceCreateError } from "../lib/errors";
+import { ServiceCreateError, ServiceNotFoundError } from "../lib/errors";
+import { getPaginationMeta, type PaginationParams } from "../lib/pagination";
 import { ServiceRepository } from "../repositories/services";
 
-export { ServiceNotFoundError, ServiceCreateError };
+export { ServiceCreateError, ServiceNotFoundError };
 
 export class ServiceService extends Effect.Service<ServiceService>()("ServiceService", {
   effect: Effect.gen(function* () {
-    const getAll = () => ServiceRepository.findAll();
+    const getAll = ({ page, limit, search }: PaginationParams) =>
+      Effect.gen(function* () {
+        const result = yield* ServiceRepository.findAllPaginated({ page, limit, search });
+        return {
+          services: result.data,
+          pagination: getPaginationMeta(page, limit, result.total),
+        };
+      });
 
     const getById = (id: number) => ServiceRepository.findById(id);
 
-    const getByTeamId = (publicTeamId: string) =>
+    const getByTeamId = (publicTeamId: string, { page, limit, search }: PaginationParams) =>
       Effect.gen(function* () {
         const team = yield* TeamRepository.findByPublicId(publicTeamId);
         if (!team) {
           return yield* Effect.fail(new ServiceNotFoundError({ message: "Team not found" }));
         }
-        return yield* ServiceRepository.findByTeamId(team.id);
+
+        const result = yield* ServiceRepository.findByTeamId(team.id, { page, limit, search });
+        return {
+          services: result.data,
+          pagination: getPaginationMeta(page, limit, result.total),
+        };
       });
 
-    const getByChallengeId = (challengeId: number) =>
-      ServiceRepository.findByChallengeId(challengeId);
+    const getByChallengeId = (challengeId: number, { page, limit, search }: PaginationParams) =>
+      Effect.gen(function* () {
+        const result = yield* ServiceRepository.findByChallengeId(challengeId, { page, limit, search });
+        return {
+          services: result.data,
+          pagination: getPaginationMeta(page, limit, result.total),
+        };
+      });
 
     const create = (data: NewService) =>
       Effect.gen(function* () {
@@ -94,7 +113,8 @@ export class ServiceService extends Effect.Service<ServiceService>()("ServiceSer
       Effect.gen(function* () {
         const existing = yield* ServiceRepository.findAll();
         const hasExisting = existing.some(
-          (s) => s.teamId === teamId && s.challengeId === challengeId,
+          (s: { teamId: number; challengeId: number }) =>
+            s.teamId === teamId && s.challengeId === challengeId,
         );
 
         if (hasExisting) {

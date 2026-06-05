@@ -1,4 +1,5 @@
 import z from "zod/v4";
+import { PaginationMetaSchema } from "./common";
 
 const ALLOWED_EXTENSIONS = [".zip", ".tar", ".tar.gz", ".tgz", ".7z"] as const;
 const MAX_UPLOAD_SIZE = 100 * 1024 * 1024;
@@ -51,6 +52,7 @@ export const ChallengeModel = {
   }),
   challengesListResponse: z.object({
     challenges: z.array(ChallengeSchema),
+    pagination: PaginationMetaSchema,
   }),
   uploadFile: z.object({
     file: z

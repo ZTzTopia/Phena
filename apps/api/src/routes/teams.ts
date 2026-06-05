@@ -29,14 +29,23 @@ const app = new Hono()
         },
       },
     }),
+    validator("query", CommonModel.paginationQuery),
     async (c) => {
       const role = c.get("auth")?.role ?? "team";
       const isAdmin = role === "admin";
+      const { page, limit, search } = c.req.valid("query");
 
-      const teams = await runPromise(
-        TeamService.use((svc) => (isAdmin ? svc.getAll() : svc.getAllWithoutAdmins())),
+      const result = await runPromise(
+        TeamService.use((svc) =>
+          isAdmin
+            ? svc.getAll({ page, limit, search })
+            : svc.getAllWithoutAdmins({ page, limit, search }),
+        ),
       );
-      return sJson(c, TeamModel.teamsListResponse, { teams: teams.map(mapPublicIdToId) });
+      return sJson(c, TeamModel.teamsListResponse, {
+        teams: result.teams.map(mapPublicIdToId),
+        pagination: result.pagination,
+      });
     },
   )
   .post(

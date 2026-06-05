@@ -31,9 +31,16 @@ const app = new Hono()
     }),
     authMiddleware,
     requireRole("admin"),
+    validator("query", CommonModel.paginationQuery),
     async (c) => {
-      const services = await runPromise(ServiceService.use((svc) => svc.getAll()));
-      return sJson(c, ServiceModel.servicesListResponse, { services });
+      const { page, limit, search } = c.req.valid("query");
+      const result = await runPromise(
+        ServiceService.use((svc) => svc.getAll({ page, limit, search })),
+      );
+      return sJson(c, ServiceModel.servicesListResponse, {
+        services: result.services,
+        pagination: result.pagination,
+      });
     },
   )
   .get(
@@ -93,16 +100,23 @@ const app = new Hono()
     }),
     authMiddleware,
     validator("param", CommonModel.publicIdParam),
+    validator("query", CommonModel.paginationQuery),
     async (c) => {
       const param = c.req.valid("param");
       const auth = c.get("auth");
+      const { page, limit, search } = c.req.valid("query");
 
       if (auth.role !== "admin" && auth.id !== param.publicId) {
         throw new HTTPException(403, { message: "Access denied" });
       }
 
-      const services = await runPromise(ServiceService.use((svc) => svc.getByTeamId(auth.id)));
-      return sJson(c, ServiceModel.servicesListResponse, { services });
+      const result = await runPromise(
+        ServiceService.use((svc) => svc.getByTeamId(auth.id, { page, limit, search })),
+      );
+      return sJson(c, ServiceModel.servicesListResponse, {
+        services: result.services,
+        pagination: result.pagination,
+      });
     },
   )
   .get(

@@ -4,21 +4,11 @@ import { serviceOperations } from "@api/db/schema/service-operations";
 import { services, type NewService } from "@api/db/schema/services";
 import { teams } from "@api/db/schema/teams";
 import { eq } from "drizzle-orm";
+import { relationsFilterToSQL, sql } from "drizzle-orm";
 import { Effect } from "effect";
+import type { WhereClause } from "../db/types";
 import { Db } from "../db";
-
-export interface EnrichedService {
-  id: number;
-  teamId: number;
-  teamName: string | null;
-  challengeId: number;
-  challengeTitle: string | null;
-  status: "up" | "down" | "pending";
-  host: string | null;
-  port: number | null;
-  createdAt: Date;
-  updatedAt: Date;
-}
+import { getOffset, type PaginationParams } from "../lib/pagination";
 
 export abstract class ServiceRepository {
   static findAll() {
@@ -28,13 +18,57 @@ export abstract class ServiceRepository {
           env.db.query.services.findMany({
             orderBy: (service, { asc }) => [asc(service.createdAt)],
             with: {
-              team: true,
-              challenge: true,
+              team: { columns: { publicId: true, name: true } },
+              challenge: { columns: { publicId: true, title: true } },
             },
           }),
         catch: (e) => new Error(String(e)),
       }),
     );
+  }
+
+  static findAllPaginated({ page, limit, search }: PaginationParams) {
+    const offset = getOffset(page, limit);
+    return Effect.flatMap(Db, (env) => {
+      const where: WhereClause<"services"> | undefined = search
+        ? {
+            OR: [
+              { status: { ilike: `%${search}%` } },
+              { host: { ilike: `%${search}%` } },
+              { port: { eq: Number(search) } },
+              {
+                RAW: (table) =>
+                  sql`${table.teamId} IN (SELECT id FROM teams WHERE name ILIKE ${"%" + search + "%"})`,
+              },
+              {
+                RAW: (table) =>
+                  sql`${table.challengeId} IN (SELECT id FROM challenges WHERE title ILIKE ${"%" + search + "%"})`,
+              },
+            ],
+          }
+        : undefined;
+
+      const dataQuery = Effect.tryPromise(() =>
+        env.db.query.services.findMany({
+          where,
+          orderBy: (service, { asc }) => [asc(service.createdAt)],
+          with: {
+            team: { columns: { publicId: true, name: true } },
+            challenge: { columns: { publicId: true, title: true } },
+          },
+          limit,
+          offset,
+        }),
+      );
+
+      const totalQuery = Effect.tryPromise(() =>
+        env.db.$count(services, where ? relationsFilterToSQL(services, where) : undefined),
+      );
+
+      return Effect.all([dataQuery, totalQuery]).pipe(
+        Effect.map(([data, total]) => ({ data, total: Number(total ?? 0) })),
+      );
+    });
   }
 
   static findById(id: number) {
@@ -46,8 +80,8 @@ export abstract class ServiceRepository {
               id,
             },
             with: {
-              team: true,
-              challenge: true,
+              team: { columns: { publicId: true, name: true } },
+              challenge: { columns: { publicId: true, title: true } },
             },
           }),
         catch: (e) => new Error(String(e)),
@@ -55,40 +89,92 @@ export abstract class ServiceRepository {
     );
   }
 
-  static findByTeamId(teamId: number) {
-    return Effect.flatMap(Db, (env) =>
-      Effect.tryPromise({
-        try: async () =>
-          env.db.query.services.findMany({
-            where: {
-              teamId,
-            },
-            with: {
-              team: true,
-              challenge: true,
-            },
-          }),
-        catch: (e) => new Error(String(e)),
-      }),
-    );
+  static findByTeamId(teamId: number, { page, limit, search }: PaginationParams) {
+    const offset = getOffset(page, limit);
+    return Effect.flatMap(Db, (env) => {
+      const where: WhereClause<"services"> = search
+        ? {
+            AND: [
+              { teamId: { eq: teamId } },
+              {
+                OR: [
+                  { status: { ilike: `%${search}%` } },
+                  { host: { ilike: `%${search}%` } },
+                  { port: { eq: Number(search) } },
+                  {
+                    RAW: (table) =>
+                      sql`${table.challengeId} IN (SELECT id FROM challenges WHERE title ILIKE ${"%" + search + "%"})`,
+                  },
+                ],
+              },
+            ],
+          }
+        : { teamId: { eq: teamId } };
+
+      const dataQuery = Effect.tryPromise(() =>
+        env.db.query.services.findMany({
+          where,
+          with: {
+            team: { columns: { publicId: true, name: true } },
+            challenge: { columns: { publicId: true, title: true } },
+          },
+          limit,
+          offset,
+        }),
+      );
+
+      const totalQuery = Effect.tryPromise(() =>
+        env.db.$count(services, relationsFilterToSQL(services, where)),
+      );
+
+      return Effect.all([dataQuery, totalQuery]).pipe(
+        Effect.map(([data, total]) => ({ data, total: Number(total ?? 0) })),
+      );
+    });
   }
 
-  static findByChallengeId(challengeId: number) {
-    return Effect.flatMap(Db, (env) =>
-      Effect.tryPromise({
-        try: async () =>
-          env.db.query.services.findMany({
-            where: {
-              challengeId,
-            },
-            with: {
-              team: true,
-              challenge: true,
-            },
-          }),
-        catch: (e) => new Error(String(e)),
-      }),
-    );
+  static findByChallengeId(challengeId: number, { page, limit, search }: PaginationParams) {
+    const offset = getOffset(page, limit);
+    return Effect.flatMap(Db, (env) => {
+      const where: WhereClause<"services"> = search
+        ? {
+            AND: [
+              { challengeId: { eq: challengeId } },
+              {
+                OR: [
+                  { status: { ilike: `%${search}%` } },
+                  { host: { ilike: `%${search}%` } },
+                  { port: { eq: Number(search) } },
+                  {
+                    RAW: (table) =>
+                      sql`${table.teamId} IN (SELECT id FROM teams WHERE name ILIKE ${"%" + search + "%"})`,
+                  },
+                ],
+              },
+            ],
+          }
+        : { challengeId: { eq: challengeId } };
+
+      const dataQuery = Effect.tryPromise(() =>
+        env.db.query.services.findMany({
+          where,
+          with: {
+            team: { columns: { publicId: true, name: true } },
+            challenge: { columns: { publicId: true, title: true } },
+          },
+          limit,
+          offset,
+        }),
+      );
+
+      const totalQuery = Effect.tryPromise(() =>
+        env.db.$count(services, relationsFilterToSQL(services, where)),
+      );
+
+      return Effect.all([dataQuery, totalQuery]).pipe(
+        Effect.map(([data, total]) => ({ data, total: Number(total ?? 0) })),
+      );
+    });
   }
 
   static create(data: NewService) {

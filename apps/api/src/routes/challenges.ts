@@ -31,10 +31,15 @@ const app = new Hono()
         },
       },
     }),
+    validator("query", CommonModel.paginationQuery),
     async (c) => {
-      const challenges = await runPromise(ChallengeService.use((svc) => svc.getAll()));
+      const { page, limit, search } = c.req.valid("query");
+      const result = await runPromise(
+        ChallengeService.use((svc) => svc.getAll({ page, limit, search })),
+      );
       return sJson(c, ChallengeModel.challengesListResponse, {
-        challenges: challenges.map(mapPublicIdToId),
+        challenges: result.challenges.map(mapPublicIdToId),
+        pagination: result.pagination,
       });
     },
   )

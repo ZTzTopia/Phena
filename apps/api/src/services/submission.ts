@@ -2,6 +2,7 @@ import type { NewSubmission } from "@api/db/schema/submissions";
 import { FlagRepository } from "@api/repositories/flags";
 import { Effect } from "effect";
 import { FlagAlreadySubmittedError, FlagSubmitError, SubmissionNotFoundError } from "../lib/errors";
+import { getPaginationMeta, type PaginationParams } from "../lib/pagination";
 import { SubmissionRepository } from "../repositories/submissions";
 
 export { FlagAlreadySubmittedError, FlagSubmitError, SubmissionNotFoundError };
@@ -59,26 +60,21 @@ export class SubmissionService extends Effect.Service<SubmissionService>()("Subm
         return yield* Effect.succeed(submission);
       });
 
-    const getAll = ({ page, limit, search }: { page: number; limit: number; search?: string }) =>
+    const getAll = ({ page, limit, search }: PaginationParams) =>
       Effect.gen(function* () {
         const result = yield* SubmissionRepository.findAll({ page, limit, search });
-        const totalPages = Math.ceil(result.total / limit);
         return {
           submissions: result.submissions,
-          pagination: { page, limit, total: result.total, totalPages },
+          pagination: getPaginationMeta(page, limit, result.total),
         };
       });
 
-    const getByTeamId = (
-      teamId: number,
-      { page, limit, search }: { page: number; limit: number; search?: string },
-    ) =>
+    const getByTeamId = (teamId: number, { page, limit, search }: PaginationParams) =>
       Effect.gen(function* () {
         const result = yield* SubmissionRepository.findByTeamId(teamId, { page, limit, search });
-        const totalPages = Math.ceil(result.total / limit);
         return {
           submissions: result.submissions,
-          pagination: { page, limit, total: result.total, totalPages },
+          pagination: getPaginationMeta(page, limit, result.total),
         };
       });
 

@@ -1,6 +1,9 @@
 "use client";
 
+import { Input } from "@phena/ui/components/8bit/input";
 import { Leaderboard } from "@phena/ui/components/8bit/blocks/leaderboard";
+import { Search } from "pixelarticons/react";
+import { useMemo, useState } from "react";
 import { useAuth } from "@/app/auth-provider";
 
 const mockLeaderboardPlayers = [
@@ -16,6 +19,16 @@ const mockLeaderboardPlayers = [
 
 export default function LeaderboardPage() {
   const { team } = useAuth();
+  const [searchInput, setSearchInput] = useState("");
+
+  const filteredPlayers = useMemo(
+    () =>
+      mockLeaderboardPlayers.filter((player) => {
+        if (!searchInput) return true;
+        return player.name.toLowerCase().includes(searchInput.toLowerCase());
+      }),
+    [searchInput],
+  );
 
   return (
     <div className="flex w-full flex-col">
@@ -26,9 +39,19 @@ export default function LeaderboardPage() {
         </p>
       </div>
 
+      <div className="relative mb-6">
+        <Search className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
+        <Input
+          placeholder="Search players..."
+          className="w-full pl-10"
+          value={searchInput}
+          onChange={(e) => setSearchInput(e.target.value)}
+        />
+      </div>
+
       <Leaderboard
         title=""
-        players={mockLeaderboardPlayers}
+        players={filteredPlayers}
         currentPlayerId={team?.id ?? undefined}
         maxPlayers={8}
         className="retro"

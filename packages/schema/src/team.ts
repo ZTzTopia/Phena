@@ -1,4 +1,5 @@
 import z from "zod/v4";
+import { PaginationMetaSchema } from "./common";
 
 export const TeamSchema = z.object({
   id: z.string(),
@@ -38,6 +39,7 @@ export const TeamModel = {
   }),
   teamsListResponse: z.object({
     teams: z.array(TeamSchema),
+    pagination: PaginationMetaSchema,
   }),
 } as const;
 

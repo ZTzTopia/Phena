@@ -13,11 +13,12 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { DetailedError, parseResponse } from "hono/client";
 import { PlusIcon } from "lucide-react";
 import { useState } from "react";
+import { usePaginatedSearchState } from "@/hooks/use-paginated-search-state";
 import { toast } from "sonner";
 import { ChallengeForm } from "@/app/(admin)/admin/challenges/_components/challenge-form";
 import Loading from "@/app/(admin)/loading";
 import { ConfirmDialog } from "@/components/confirm-dialog";
-import { DataTable } from "@/components/data-table";
+import { ServerDataTable } from "@/components/data-table";
 import { client } from "@/lib/api-client";
 import type { ChallengeFormInput, ChallengeResponse } from "./_types";
 import { getChallengeColumns } from "./columns";
@@ -34,12 +35,29 @@ export default function ChallengesPage() {
   const [selectedChallenge, setSelectedChallenge] = useState<ChallengeResponse | null>(null);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [challengeToDelete, setChallengeToDelete] = useState<string | null>(null);
+  const {
+    pageIndex,
+    pageSize,
+    searchInput,
+    debouncedSearch,
+    setPageIndex,
+    setPageSize,
+    setSearchInput,
+  } = usePaginatedSearchState({ initialPageSize: 20 });
 
-  const { data: challenges, isLoading } = useQuery({
-    queryKey: ["admin", "challenges"],
-    queryFn: async () => await parseResponse(client.api.challenges.$get()),
-    select: (data) => data.challenges,
+  const { data, isLoading, isFetching } = useQuery({
+    queryKey: ["admin", "challenges", { page: pageIndex + 1, limit: pageSize, search: debouncedSearch }],
+    queryFn: async () =>
+      parseResponse(
+        client.api.challenges.$get({
+          query: { page: String(pageIndex + 1), limit: String(pageSize), search: debouncedSearch },
+        }),
+      ),
+    placeholderData: (previousData) => previousData,
   });
+
+  const challenges = data?.challenges ?? [];
+  const pagination = data?.pagination;
 
   const createMutation = useMutation({
     mutationFn: async (data: ChallengeModel["createChallenge"]) => {
@@ -252,11 +270,23 @@ export default function ChallengesPage() {
       </div>
 
       <div className="px-4 lg:px-6">
-        <DataTable<ChallengeResponse>
+        <ServerDataTable<ChallengeResponse>
           columns={columns}
-          data={challenges ?? []}
+          data={challenges}
           filterPlaceholder="Search challenges..."
           noResultsText='No challenges yet. Click "New Challenge" to create one.'
+          pageCount={pagination?.totalPages ?? 1}
+          totalRows={pagination?.total}
+          pageIndex={pageIndex}
+          pageSize={pageSize}
+          onPageChange={setPageIndex}
+          onPageSizeChange={(size) => {
+            setPageSize(size);
+            setPageIndex(0);
+          }}
+          searchValue={searchInput}
+          onSearchChange={setSearchInput}
+          isLoading={isFetching}
         />
       </div>
 
