@@ -1,5 +1,6 @@
 "use client";
 
+import { ConfigKey, ConfigModel } from "@phena/schema";
 import {
   Field,
   FieldDescription,
@@ -11,24 +12,31 @@ import { NumberInput } from "@phena/ui/components/number-input";
 import { SettingsIcon } from "lucide-react";
 import { ConfigCard } from "@/app/(admin)/admin/config/_components/config-card";
 
-interface ScoringConfigCardProps {
+export function ScoringConfigCard({
+  initialValue,
+}: {
   initialValue: {
     attackPoints: number;
     defensePoints: number;
     slaWeight: number;
     firstBloodBonus: number | null;
   };
-}
-
-export function ScoringConfigCard({ initialValue }: ScoringConfigCardProps) {
+}) {
   return (
     <ConfigCard
       title="Scoring Parameters"
       icon={<SettingsIcon className="size-5" />}
       description="Configure points and scoring weights"
       initialValue={initialValue}
-      schema={{} as any}
-      toPatch={(scoring) => ({ scoring })}
+      schema={ConfigModel.scoringSection}
+      toPatch={(scoring) => ({
+        scoring: {
+          [ConfigKey.AttackPoints]: scoring.attackPoints,
+          [ConfigKey.DefensePoints]: scoring.defensePoints,
+          [ConfigKey.SlaWeight]: scoring.slaWeight,
+          [ConfigKey.FirstBloodBonus]: scoring.firstBloodBonus,
+        },
+      })}
       successMessage="Scoring parameters saved"
     >
       {({ draft, setDraft, getFieldError, getFieldErrors }) => (

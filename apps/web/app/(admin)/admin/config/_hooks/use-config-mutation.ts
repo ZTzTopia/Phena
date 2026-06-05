@@ -1,17 +1,14 @@
 "use client";
 
-import { ConfigKey } from "@phena/schema";
-import { parseResponse } from "hono/client";
+import { ConfigKeySchema } from "@phena/schema";
 import { useMutation, useQueryClient, type UseMutationResult } from "@tanstack/react-query";
+import { parseResponse } from "hono/client";
 import { toast } from "sonner";
 import { client } from "@/lib/api-client";
 
-type ConfigPatch = Partial<{
-  contest: Record<string, unknown>;
-  scoring: Record<string, unknown>;
-  system: Record<string, unknown>;
-  battleMap: Record<string, unknown>;
-}>;
+export interface ConfigPatch {
+  [section: string]: Partial<Record<string, string | number | boolean | null>>;
+}
 
 interface ConfigMutationVariables {
   patch: ConfigPatch;
@@ -29,19 +26,18 @@ export function useConfigMutation(): UseMutationResult<
   unknown
 > {
   const queryClient = useQueryClient();
-  const validKeys = new Set(Object.values(ConfigKey));
 
   return useMutation<ConfigMutationResponse, Error, ConfigMutationVariables, unknown>({
     mutationFn: async ({ patch }) => {
-      const updates = Object.entries(patch).flatMap(([, values]) =>
-        Object.entries(values as Record<string, unknown>).map(([k, value]) => {
-          const key = validKeys.has(k as ConfigKey) ? (k as ConfigKey) : null;
-          if (key === null) {
-            throw new Error(`Invalid config key: ${k}`);
-          }
-          return { key, value: String(value) };
-        }),
-      );
+      const updates = Object.entries(patch).flatMap(([, values]) => {
+        if (!values) return [];
+        return Object.entries(values).flatMap(([k, value]) => {
+          if (value === null || value === undefined) return [];
+          const parsed = ConfigKeySchema.safeParse(k);
+          if (!parsed.success) return [];
+          return [{ key: parsed.data, value: String(value) }];
+        });
+      });
 
       await Promise.all(
         updates.map(({ key, value }) =>

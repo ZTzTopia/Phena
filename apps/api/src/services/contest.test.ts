@@ -1,7 +1,7 @@
 import { describe, it, expect } from "bun:test";
 
 describe("ContestService startContest and stopContest", () => {
-  describe("is_running state checks", () => {
+  describe("isRunning state checks", () => {
     it("should fail when starting an already running contest", () => {
       const isRunning = "true";
       const canStart = isRunning !== "true";
@@ -29,7 +29,7 @@ describe("ContestService startContest and stopContest", () => {
 });
 
 describe("Tick advancement and round progression", () => {
-  it("should increment current_tick on each tick", () => {
+  it("should increment currentTick on each tick", () => {
     let currentTick = 0;
 
     currentTick = currentTick + 1;
@@ -39,7 +39,7 @@ describe("Tick advancement and round progression", () => {
     expect(currentTick).toBe(2);
   });
 
-  it("should advance to next round when current_tick reaches tick_per_round", () => {
+  it("should advance to next round when currentTick reaches tickPerRound", () => {
     let currentTick = 0;
     let currentRound = 0;
     const tickPerRound = 10;
@@ -57,7 +57,7 @@ describe("Tick advancement and round progression", () => {
     expect(currentTick).toBe(0);
   });
 
-  it("should stop contest when current_round reaches total_rounds", () => {
+  it("should stop contest when currentRound reaches totalRounds", () => {
     let currentRound = 0;
     const totalRounds = 5;
     let isRunning = true;
@@ -88,7 +88,7 @@ describe("Tick advancement and round progression", () => {
     expect(currentTick).toBe(0);
   });
 
-  it("should stop contest if round advancement exceeds total_rounds", () => {
+  it("should stop contest if round advancement exceeds totalRounds", () => {
     let currentTick = 0;
     let currentRound = 0;
     const tickPerRound = 5;
@@ -115,20 +115,20 @@ describe("Tick advancement and round progression", () => {
 describe("Config numeric key validation", () => {
   it("should correctly identify numeric config keys", () => {
     const numericKeys = [
-      "tick_duration",
-      "tick_per_round",
-      "total_rounds",
-      "current_tick",
-      "current_round",
+      "tickDuration",
+      "tickPerRound",
+      "totalRounds",
+      "currentTick",
+      "currentRound",
     ];
 
     const isNumericKey = (key: string) => numericKeys.includes(key);
 
-    expect(isNumericKey("tick_duration")).toBe(true);
-    expect(isNumericKey("tick_per_round")).toBe(true);
-    expect(isNumericKey("total_rounds")).toBe(true);
-    expect(isNumericKey("is_running")).toBe(false);
-    expect(isNumericKey("contest_name")).toBe(false);
+    expect(isNumericKey("tickDuration")).toBe(true);
+    expect(isNumericKey("tickPerRound")).toBe(true);
+    expect(isNumericKey("totalRounds")).toBe(true);
+    expect(isNumericKey("isRunning")).toBe(false);
+    expect(isNumericKey("contestName")).toBe(false);
   });
 
   it("should parse string config values to integers", () => {
@@ -140,7 +140,7 @@ describe("Config numeric key validation", () => {
 });
 
 describe("startContestIfNeeded logic", () => {
-  it("should start contest when is_running is true and start_date has passed", () => {
+  it("should start contest when isRunning is true and startDate has passed", () => {
     const isRunning = true;
     const startDate = new Date(Date.now() - 1000).toISOString();
     const startDateObj = new Date(startDate);
@@ -148,7 +148,7 @@ describe("startContestIfNeeded logic", () => {
     expect(shouldStart).toBe(true);
   });
 
-  it("should not start contest when is_running is false", () => {
+  it("should not start contest when isRunning is false", () => {
     const isRunning = false;
     const startDate = new Date(Date.now() - 1000).toISOString();
     const startDateObj = new Date(startDate);
@@ -156,7 +156,7 @@ describe("startContestIfNeeded logic", () => {
     expect(shouldStart).toBe(false);
   });
 
-  it("should not start contest when start_date is in the future", () => {
+  it("should not start contest when startDate is in the future", () => {
     const isRunning = true;
     const startDate = new Date(Date.now() + 10000).toISOString();
     const startDateObj = new Date(startDate);
@@ -166,7 +166,7 @@ describe("startContestIfNeeded logic", () => {
 });
 
 describe("scheduleStartIfNeeded delay calculation", () => {
-  it("should calculate positive delay when start_date is in the future", () => {
+  it("should calculate positive delay when startDate is in the future", () => {
     const futureDate = new Date(Date.now() + 5000);
     const now = new Date();
     const delayMs = futureDate.getTime() - now.getTime();
@@ -174,14 +174,14 @@ describe("scheduleStartIfNeeded delay calculation", () => {
     expect(delayMs).toBeLessThan(6000);
   });
 
-  it("should calculate negative delay when start_date is in the past", () => {
+  it("should calculate negative delay when startDate is in the past", () => {
     const pastDate = new Date(Date.now() - 5000);
     const now = new Date();
     const delayMs = pastDate.getTime() - now.getTime();
     expect(delayMs).toBeLessThan(0);
   });
 
-  it("should calculate zero delay when start_date is now", () => {
+  it("should calculate zero delay when startDate is now", () => {
     const now = new Date();
     const delayMs = now.getTime() - now.getTime();
     expect(delayMs).toBe(0);

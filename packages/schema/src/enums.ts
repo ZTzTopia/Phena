@@ -16,15 +16,22 @@ export enum MapMode {
 }
 
 export enum ConfigKey {
-  ContestName = "contest_name",
-  TickDuration = "tick_duration",
-  IsRunning = "is_running",
-  CurrentTick = "current_tick",
-  CurrentRound = "current_round",
-  StartDate = "start_date",
-  TickPerRound = "tick_per_round",
-  TotalRounds = "total_rounds",
-  FlagTemplate = "flag_template",
+  ContestName = "contestName",
+  TickDuration = "tickDuration",
+  IsRunning = "isRunning",
+  CurrentTick = "currentTick",
+  CurrentRound = "currentRound",
+  StartDate = "startDate",
+  TickPerRound = "tickPerRound",
+  TotalRounds = "totalRounds",
+  EndDate = "endDate",
+  AttackPoints = "attackPoints",
+  DefensePoints = "defensePoints",
+  SlaWeight = "slaWeight",
+  FirstBloodBonus = "firstBloodBonus",
+  CheckerPoolSize = "checkerPoolSize",
+  CheckerTimeout = "checkerTimeout",
+  FlagTemplate = "flagTemplate",
 }
 
 export enum SSEEventType {

@@ -1,5 +1,6 @@
 "use client";
 
+import { ConfigKey, ConfigModel } from "@phena/schema";
 import { DatePicker } from "@phena/ui/components/date-picker";
 import {
   Field,
@@ -13,7 +14,9 @@ import { NumberInput } from "@phena/ui/components/number-input";
 import { TrophyIcon } from "lucide-react";
 import { ConfigCard } from "@/app/(admin)/admin/config/_components/config-card";
 
-interface ContestConfigCardProps {
+export function ContestConfigCard({
+  initialValue,
+}: {
   initialValue: {
     name: string;
     tickDuration: number;
@@ -21,17 +24,22 @@ interface ContestConfigCardProps {
     startDate: string;
     endDate: string;
   };
-}
-
-export function ContestConfigCard({ initialValue }: ContestConfigCardProps) {
+}) {
   return (
     <ConfigCard
       title="Contest Settings"
       icon={<TrophyIcon className="size-5" />}
       description="Configure contest name, timing, and duration"
       initialValue={initialValue}
-      schema={{} as any}
-      toPatch={(contest) => ({ contest })}
+      schema={ConfigModel.contestSection}
+      toPatch={(contest) => ({
+        contest: {
+          [ConfigKey.ContestName]: contest.name,
+          [ConfigKey.TickDuration]: contest.tickDuration,
+          [ConfigKey.TickPerRound]: contest.roundDuration,
+          [ConfigKey.StartDate]: contest.startDate,
+        },
+      })}
       successMessage="Contest settings saved"
     >
       {({ draft, setDraft, getFieldError, getFieldErrors }) => (

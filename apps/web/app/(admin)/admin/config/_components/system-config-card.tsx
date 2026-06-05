@@ -1,5 +1,6 @@
 "use client";
 
+import { ConfigKey, ConfigModel } from "@phena/schema";
 import {
   Field,
   FieldDescription,
@@ -11,23 +12,29 @@ import { NumberInput } from "@phena/ui/components/number-input";
 import { CogIcon } from "lucide-react";
 import { ConfigCard } from "@/app/(admin)/admin/config/_components/config-card";
 
-interface SystemConfigCardProps {
+export function SystemConfigCard({
+  initialValue,
+}: {
   initialValue: {
     checkerPoolSize: number;
     checkerTimeout: number;
     flagTemplate: string;
   };
-}
-
-export function SystemConfigCard({ initialValue }: SystemConfigCardProps) {
+}) {
   return (
     <ConfigCard
       title="System Constraints"
       icon={<CogIcon className="size-5" />}
       description="Configure checker and flag parameters"
       initialValue={initialValue}
-      schema={{} as any}
-      toPatch={(system) => ({ system })}
+      schema={ConfigModel.systemSection}
+      toPatch={(system) => ({
+        system: {
+          [ConfigKey.CheckerPoolSize]: system.checkerPoolSize,
+          [ConfigKey.CheckerTimeout]: system.checkerTimeout,
+          [ConfigKey.FlagTemplate]: system.flagTemplate,
+        },
+      })}
       successMessage="System constraints saved"
     >
       {({ draft, setDraft, getFieldError, getFieldErrors }) => (

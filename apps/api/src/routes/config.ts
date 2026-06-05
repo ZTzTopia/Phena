@@ -1,6 +1,7 @@
-import { CommonModel, ConfigKey, ConfigModel } from "@phena/schema";
+import { CommonModel, ConfigKey, ConfigModel, ConfigValueSchemas } from "@phena/schema";
 import { Hono } from "hono";
 import { describeRoute, resolver, validator } from "hono-openapi";
+import { HTTPException } from "hono/http-exception";
 import { evaluateTemplate, validateTemplate } from "../lib/flag-expression";
 import { runPromise } from "../lib/runtime";
 import { authMiddleware, requireRole } from "../middleware/auth";
@@ -36,7 +37,8 @@ const app = new Hono()
     }),
     async (c) => {
       const config = await runPromise(ConfigService.use((svc) => svc.getAllConfig()));
-      return c.json(config);
+      const entries = Object.values(ConfigKey).map((key) => ({ key, value: config[key] }));
+      return c.json(entries);
     },
   )
   .get(
@@ -106,7 +108,14 @@ const app = new Hono()
       const param = c.req.valid("param");
       const body = c.req.valid("json");
 
-      await runPromise(ConfigService.use((svc) => svc.setConfig(param.key, body.value)));
+      const parsed = ConfigValueSchemas[param.key].safeParse(body.value);
+      if (!parsed.success) {
+        throw new HTTPException(400, {
+          message: parsed.error.issues[0]?.message ?? "Invalid value",
+        });
+      }
+
+      await runPromise(ConfigService.use((svc) => svc.setConfig(param.key, parsed.data as never)));
 
       if (
         param.key === ConfigKey.StartDate ||
@@ -116,7 +125,7 @@ const app = new Hono()
         await runPromise(ContestService.use((svc) => svc.reloadSchedule()));
       }
 
-      return c.json({ key: param.key, value: body.value });
+      return c.json({ key: param.key, value: parsed.data });
     },
   )
   .post(

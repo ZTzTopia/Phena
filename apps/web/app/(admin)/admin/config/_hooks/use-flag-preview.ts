@@ -1,27 +1,10 @@
 "use client";
 
+import { ConfigModel } from "@phena/schema";
 import { useQuery } from "@tanstack/react-query";
 import { parseResponse } from "hono/client";
 import { useDeferredValue } from "react";
 import { client } from "@/lib/api-client";
-
-export interface FlagPreviewContext {
-  round: number;
-  tick: number;
-  challengeId: number;
-  teamId: number;
-  serviceId: number;
-  index: number;
-}
-
-export interface FlagPreviewSample {
-  context: FlagPreviewContext;
-  result: string;
-}
-
-export interface FlagPreviewResponse {
-  samples: FlagPreviewSample[];
-}
 
 export function useFlagPreview(template: string, enabled: boolean = true) {
   const deferred = useDeferredValue(template);
@@ -34,7 +17,7 @@ export function useFlagPreview(template: string, enabled: boolean = true) {
           json: { template: deferred },
         }),
       );
-      return res as FlagPreviewResponse;
+      return ConfigModel.flagPreviewResponse.parse(res);
     },
     enabled: enabled && deferred.length > 0,
     staleTime: 0,

@@ -1,4 +1,4 @@
-import { CommonModel, ConfigKey } from "@phena/schema";
+import { CommonModel } from "@phena/schema";
 import { Hono } from "hono";
 import { describeRoute, resolver } from "hono-openapi";
 import { runPromise } from "../lib/runtime";
@@ -86,17 +86,12 @@ const app = new Hono()
       },
     }),
     async (c) => {
-      const [isRunning, currentTick, currentRound, startDate] = await Promise.all([
-        runPromise(ConfigService.use((svc) => svc.getConfig(ConfigKey.IsRunning))),
-        runPromise(ConfigService.use((svc) => svc.getConfig(ConfigKey.CurrentTick))),
-        runPromise(ConfigService.use((svc) => svc.getConfig(ConfigKey.CurrentRound))),
-        runPromise(ConfigService.use((svc) => svc.getConfig(ConfigKey.StartDate))),
-      ]);
+      const config = await runPromise(ConfigService.use((svc) => svc.getAllConfig()));
       return c.json({
-        is_running: isRunning === "true",
-        current_tick: parseInt(String(currentTick), 10),
-        current_round: parseInt(String(currentRound), 10),
-        start_date: String(startDate),
+        isRunning: config.isRunning,
+        currentTick: config.currentTick,
+        currentRound: config.currentRound,
+        startDate: config.startDate,
       });
     },
   );

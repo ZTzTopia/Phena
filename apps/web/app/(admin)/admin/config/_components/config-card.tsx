@@ -10,8 +10,8 @@ import {
 } from "@phena/ui/components/card";
 import { useMemo, useState, type Dispatch, type ReactNode, type SetStateAction } from "react";
 import { toast } from "sonner";
-import { type ZodType } from "zod";
-import { useConfigMutation } from "@/app/(admin)/admin/config/_hooks/use-config-mutation";
+import { type ZodType } from "zod/v4";
+import { type ConfigPatch, useConfigMutation } from "@/app/(admin)/admin/config/_hooks/use-config-mutation";
 
 type FieldErrors = Record<string, string>;
 
@@ -28,9 +28,7 @@ interface ConfigCardProps<TDraft> {
   icon?: ReactNode;
   initialValue: TDraft;
   schema: ZodType<TDraft>;
-  toPatch: (draft: TDraft) => {
-    [key: string]: unknown;
-  };
+  toPatch: (draft: TDraft) => ConfigPatch;
   successMessage: string;
   children: (props: ConfigCardRenderProps<TDraft>) => ReactNode;
 }

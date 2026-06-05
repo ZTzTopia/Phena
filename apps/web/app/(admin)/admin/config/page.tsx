@@ -1,5 +1,6 @@
 "use client";
 
+import { ConfigModel } from "@phena/schema";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@phena/ui/components/tabs";
 import { useQuery } from "@tanstack/react-query";
 import { parseResponse } from "hono/client";
@@ -18,28 +19,12 @@ function Loading() {
   );
 }
 
-interface ConfigData {
-  contestName: string;
-  tickDuration: number;
-  roundDuration: number;
-  startDate: string;
-  endDate: string;
-  attackPoints: number;
-  defensePoints: number;
-  slaWeight: number;
-  firstBloodBonus: number | null;
-  checkerPoolSize: number;
-  checkerTimeout: number;
-  flagTemplate: string;
-  [key: string]: unknown;
-}
-
 export default function ConfigPage() {
-  const { data: configData, isLoading } = useQuery({
+  const { data: configEntries, isLoading } = useQuery({
     queryKey: ["admin", "config"],
     queryFn: async () => {
       const res = await parseResponse(client.api.config.$get());
-      return res as ConfigData;
+      return ConfigModel.configListResponse.parse(res);
     },
   });
 
@@ -47,25 +32,33 @@ export default function ConfigPage() {
     return <Loading />;
   }
 
+  const config: Record<string, string | number | boolean | null | undefined> = {};
+  for (const entry of configEntries ?? []) {
+    config[entry.key] = entry.value;
+  }
+
   const contest = {
-    name: configData?.contestName ?? "Phena CTF",
-    tickDuration: configData?.tickDuration ?? 60,
-    roundDuration: configData?.roundDuration ?? 600,
-    startDate: configData?.startDate ?? new Date().toISOString(),
-    endDate: configData?.endDate ?? new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+    name: typeof config.contestName === "string" ? config.contestName : "Phena CTF",
+    tickDuration: typeof config.tickDuration === "number" ? config.tickDuration : 60,
+    roundDuration: typeof config.tickPerRound === "number" ? config.tickPerRound : 600,
+    startDate: typeof config.startDate === "string" ? config.startDate : new Date().toISOString(),
+    endDate:
+      typeof config.endDate === "string"
+        ? config.endDate
+        : new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
   };
 
   const scoring = {
-    attackPoints: configData?.attackPoints ?? 100,
-    defensePoints: configData?.defensePoints ?? 50,
-    slaWeight: configData?.slaWeight ?? 0.3,
-    firstBloodBonus: configData?.firstBloodBonus ?? null,
+    attackPoints: typeof config.attackPoints === "number" ? config.attackPoints : 100,
+    defensePoints: typeof config.defensePoints === "number" ? config.defensePoints : 50,
+    slaWeight: typeof config.slaWeight === "number" ? config.slaWeight : 0.3,
+    firstBloodBonus: typeof config.firstBloodBonus === "number" ? config.firstBloodBonus : null,
   };
 
   const system = {
-    checkerPoolSize: configData?.checkerPoolSize ?? 10,
-    checkerTimeout: configData?.checkerTimeout ?? 30,
-    flagTemplate: configData?.flagTemplate ?? "PHENA{{{uuid}}}",
+    checkerPoolSize: typeof config.checkerPoolSize === "number" ? config.checkerPoolSize : 10,
+    checkerTimeout: typeof config.checkerTimeout === "number" ? config.checkerTimeout : 30,
+    flagTemplate: typeof config.flagTemplate === "string" ? config.flagTemplate : "PHENA{{{uuid}}}",
   };
 
   return (

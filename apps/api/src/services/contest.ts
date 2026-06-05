@@ -15,15 +15,14 @@ export class ContestService extends Effect.Service<ContestService>()("ContestSer
           return;
         }
 
-        const isRunningStr = yield* ConfigService.use((svc) => svc.getConfig(ConfigKey.IsRunning));
-        if (isRunningStr !== "true") {
+        const isRunning = yield* ConfigService.use((svc) => svc.getConfig(ConfigKey.IsRunning));
+        if (!isRunning) {
           return;
         }
 
-        const tickDurationStr = yield* ConfigService.use((svc) =>
+        const tickDuration = yield* ConfigService.use((svc) =>
           svc.getConfig(ConfigKey.TickDuration),
         );
-        const tickDuration = parseInt(String(tickDurationStr), 10);
 
         const fiber = yield* Effect.forkDaemon(tickScheduler(tickDuration));
         globalSchedulerRef.__phenaSchedulerFiber = fiber;
@@ -39,8 +38,8 @@ export class ContestService extends Effect.Service<ContestService>()("ContestSer
 
     const startContest = () =>
       Effect.gen(function* () {
-        const isRunningStr = yield* ConfigService.use((svc) => svc.getConfig(ConfigKey.IsRunning));
-        if (isRunningStr === "true") {
+        const isRunning = yield* ConfigService.use((svc) => svc.getConfig(ConfigKey.IsRunning));
+        if (isRunning) {
           yield* Effect.fail(new Error("Contest is already running"));
           return;
         }
@@ -52,15 +51,13 @@ export class ContestService extends Effect.Service<ContestService>()("ContestSer
     const scheduleStartIfNeeded = () =>
       Effect.gen(function* () {
         const startDateStr = yield* ConfigService.use((svc) => svc.getConfig(ConfigKey.StartDate));
-        const startDate = new Date(String(startDateStr));
+        const startDate = new Date(startDateStr);
         const now = new Date();
         const delayMs = startDate.getTime() - now.getTime();
 
         if (delayMs <= 0) {
-          const isRunningStr = yield* ConfigService.use((svc) =>
-            svc.getConfig(ConfigKey.IsRunning),
-          );
-          if (isRunningStr !== "true") {
+          const isRunning = yield* ConfigService.use((svc) => svc.getConfig(ConfigKey.IsRunning));
+          if (!isRunning) {
             return;
           }
 
@@ -91,8 +88,8 @@ export class ContestService extends Effect.Service<ContestService>()("ContestSer
 
     const stopContest = () =>
       Effect.gen(function* () {
-        const isRunningStr = yield* ConfigService.use((svc) => svc.getConfig(ConfigKey.IsRunning));
-        if (isRunningStr !== "true") {
+        const isRunning = yield* ConfigService.use((svc) => svc.getConfig(ConfigKey.IsRunning));
+        if (!isRunning) {
           yield* Effect.fail(new Error("Contest is not running"));
           return;
         }
@@ -106,23 +103,18 @@ export class ContestService extends Effect.Service<ContestService>()("ContestSer
         while (true) {
           yield* Effect.sleep(`${tickDurationSeconds} seconds`);
 
-          const currentTickStr = yield* ConfigService.use((svc) =>
+          const currentTick = yield* ConfigService.use((svc) =>
             svc.getConfig(ConfigKey.CurrentTick),
           );
-          const tickPerRoundStr = yield* ConfigService.use((svc) =>
+          const tickPerRound = yield* ConfigService.use((svc) =>
             svc.getConfig(ConfigKey.TickPerRound),
           );
-          const currentRoundStr = yield* ConfigService.use((svc) =>
+          const currentRound = yield* ConfigService.use((svc) =>
             svc.getConfig(ConfigKey.CurrentRound),
           );
-          const totalRoundsStr = yield* ConfigService.use((svc) =>
+          const totalRounds = yield* ConfigService.use((svc) =>
             svc.getConfig(ConfigKey.TotalRounds),
           );
-
-          const currentTick = parseInt(String(currentTickStr), 10);
-          const tickPerRound = parseInt(String(tickPerRoundStr), 10);
-          const currentRound = parseInt(String(currentRoundStr), 10);
-          const totalRounds = parseInt(String(totalRoundsStr), 10);
 
           const newTick = currentTick + 1;
           if (newTick > tickPerRound) {
