@@ -78,7 +78,7 @@ const app = new Hono()
         },
         async (err, stream) => {
           stream.writeln("An error occurred!");
-          console.error(err);
+          Effect.runSync(Effect.logError(String(err)));
         },
       );
     },

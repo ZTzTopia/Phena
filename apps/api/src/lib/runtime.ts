@@ -26,25 +26,27 @@ const AppEnvironment = Layer.mergeAll(
 );
 const runtime = ManagedRuntime.make(AppEnvironment);
 
+function isDomainError(error: unknown): error is DomainError {
+  return domainErrors.some((cls) => error instanceof cls);
+}
+
 export const runPromise = async <A, E, R>(effect: Effect.Effect<A, E, R>): Promise<A> => {
-  const exit = await runtime.runPromiseExit(effect as any);
+  const exit = await runtime.runPromiseExit(effect as Effect.Effect<A, E>);
   if (exit._tag === "Success") {
-    return exit.value as A;
+    return exit.value;
   }
 
   const failure = Cause.failureOption(exit.cause);
   if (failure._tag === "Some") {
     const error = failure.value;
+    Effect.runSync(Effect.logError(error));
 
     if (error instanceof HTTPException) {
       throw error;
     }
 
-    for (const errorClass of domainErrors) {
-      if (error instanceof errorClass) {
-        const domainErr = error as DomainError;
-        throw new HTTPException(domainErr.statusCode, { message: domainErr.message });
-      }
+    if (isDomainError(error)) {
+      throw new HTTPException(error.statusCode, { message: error.message });
     }
 
     if (error instanceof Error) {

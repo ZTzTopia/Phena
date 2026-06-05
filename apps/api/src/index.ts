@@ -1,9 +1,10 @@
 import { Scalar } from "@scalar/hono-api-reference";
+import { Effect } from "effect";
 import { Hono } from "hono";
 import { openAPIRouteHandler } from "hono-openapi";
 import { cors } from "hono/cors";
-import { HTTPException } from "hono/http-exception";
 import "zod-openapi/extend";
+import { HTTPException } from "hono/http-exception";
 import { runPromise } from "./lib/runtime";
 import { checkConnectionsWithRetry } from "./lib/startup";
 import { effectLogger } from "./middleware/logger";
@@ -42,7 +43,7 @@ const routes = new Hono()
       return c.json({ error: err.message }, err.status);
     }
 
-    console.error(err);
+    Effect.runSync(Effect.logError(String(err)));
     return c.json({ error: "Internal Server Error" }, 500);
   });
 

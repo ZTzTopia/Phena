@@ -275,6 +275,6 @@ const seedDb = Effect.gen(function* () {
 Effect.runPromise(seedDb)
   .then(() => process.exit(0))
   .catch((error: unknown) => {
-    console.error(`Seeding failed: ${error}`);
+    Effect.runSync(Effect.logError(`Seeding failed: ${error}`));
     process.exit(1);
   });
