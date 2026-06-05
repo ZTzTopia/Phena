@@ -1,6 +1,6 @@
 # Agent Guidelines for Phena
 
-Phena is Attack & Defense Capture The Flag Platform. The repository uses Bun as the package manager, Turbo for orchestration, and Oxlint/Oxfmt for code quality.
+Phena = Attack & Defense CTF Platform. Uses Bun, Turbo, Oxlint/Oxfmt.
 
 ## Tech Stack
 
@@ -21,9 +21,9 @@ Phena is Attack & Defense Capture The Flag Platform. The repository uses Bun as 
 
 ### Type Safety
 
-- Avoid type assertions (`as T`, `!`) whenever possible. Prefer type guards, Zod validation, or properly typed interfaces.
-- Strictly forbid `any`. Use `unknown` with type narrowing (guards/predicates) for untyped data.
+- Avoid type assertions (`as T`, `!`). Prefer type guards, Zod validation, or typed interfaces.
+- Forbid `any`. Use `unknown` with type narrowing (guards/predicates) for untyped data.
 
 ## Monorepo Command Execution
 
-When running commands in specific workspace directories (e.g., `drizzle generate` , `drizzle migrate`), **always use the `workdir` parameter** in the Bash tool fallback to `cd` commands if `workdir` parameter failed. This ensures commands run in the correct directory context.
+Run commands in specific workspace dirs (e.g., `drizzle generate`, `drizzle migrate`) with `workdir` param. Fallback to `cd` if `workdir` fails.

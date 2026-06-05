@@ -2,7 +2,7 @@
 
 ## shadcn/ui Components
 
-Use the latest version of Shadcn to install new components, like this command to add a shadcn component:
+Use latest Shadcn to install components:
 
 ```bash
 bunx --bun shadcn@latest add <component>   # Add a shadcn component
@@ -12,12 +12,12 @@ bunx --bun shadcn@latest add <component>   # Add a shadcn component
 
 ### Styling
 
-- Leverage shadcn/ui components for consistent UI
-- Avoid custom CSS when Tailwind utilities suffice
+- Use shadcn/ui components for consistent UI
+- Prefer Tailwind utilities over custom CSS
 
 ### Folder Structure
 
-The app uses Next.js 14 App Router with route groups:
+Next.js 14 App Router with route groups:
 
 ```text
 app/
@@ -37,7 +37,7 @@ app/
 
 ### Colocation Patterns
 
-Components, hooks, and types should be colocated with their routes using underscore prefixes:
+Colocate components, hooks, types with routes. Use underscore prefixes:
 
 ```text
 app/(participant)/contest/map/
@@ -60,8 +60,8 @@ app/(participant)/contest/challenges/[id]/
 
 ### Naming Conventions
 
-- **Hooks**: Use `use-*.ts` pattern (e.g., `use-challenge-detail.ts`, not `hooks.ts`)
-- **Components**: Use kebab-case for files (e.g., `challenge-form.tsx`)
-- **Private folders**: Prefix with underscore (e.g., `_components`, `_hooks`, `_types`)
+- **Hooks**: `use-*.ts` pattern (e.g., `use-challenge-detail.ts`, not `hooks.ts`)
+- **Components**: kebab-case files (e.g., `challenge-form.tsx`)
+- **Private folders**: underscore prefix (`_components`, `_hooks`, `_types`)
 - **Error boundaries**: Root `app/global-error.tsx` applies to all routes
 - **404 pages**: Separate `not-found.tsx` per route group for different UX
