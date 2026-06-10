@@ -14,6 +14,7 @@ import configRoutes from "./routes/config";
 import contestRoutes from "./routes/contest";
 import eventRoutes from "./routes/events";
 import serviceRoutes from "./routes/services";
+import systemLogRoutes from "./routes/system-logs";
 import submissionRoutes from "./routes/submissions";
 import teamRoutes from "./routes/teams";
 import { ContestService } from "./services/contest";
@@ -37,6 +38,7 @@ const routes = new Hono()
   .route("/events", eventRoutes)
   .route("/services", serviceRoutes)
   .route("/submissions", submissionRoutes)
+  .route("/system-logs", systemLogRoutes)
   .route("/teams", teamRoutes)
   .onError((err, c) => {
     if (err instanceof HTTPException) {

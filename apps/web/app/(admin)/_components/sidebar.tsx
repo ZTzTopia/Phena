@@ -43,6 +43,7 @@ const data = {
         { title: "Teams", url: "/admin/teams" },
         { title: "Services", url: "/admin/services" },
         { title: "Submissions", url: "/admin/submissions" },
+        { title: "System Logs", url: "/admin/system-logs" },
       ],
     },
     {
@@ -52,11 +53,11 @@ const data = {
     },
   ],
   navSecondary: [
-    {
-      title: "Settings",
-      url: "/admin/settings",
-      icon: Settings,
-    },
+    // {
+    //   title: "Settings",
+    //   url: "/admin/settings",
+    //   icon: Settings,
+    // },
   ],
 };
 
@@ -82,7 +83,7 @@ export function AdminSidebar({ ...props }: React.ComponentProps<typeof Sidebar>)
         <SidebarMenu className="gap-0.5">
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
-              <Link href="/dashboard">
+              <Link href="/admin/dashboard">
                 <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
                   <GalleryVerticalEnd className="size-4" />
                 </div>

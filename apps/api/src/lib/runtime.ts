@@ -2,6 +2,7 @@ import { ChallengeService } from "@api/services/challenge";
 import { ConfigService } from "@api/services/config";
 import { EventService } from "@api/services/event";
 import { SubmissionService } from "@api/services/submission";
+import { SystemLogService } from "@api/services/system-log";
 import { BunContext, BunRuntime } from "@effect/platform-bun";
 import { Cause, Effect, Layer, ManagedRuntime } from "effect";
 import { HTTPException } from "hono/http-exception";
@@ -20,6 +21,7 @@ const AppEnvironment = Layer.mergeAll(
   ConfigService.Default,
   EventService.Default,
   SubmissionService.Default,
+  SystemLogService.Default,
   TeamService.Default,
   ServiceService.Default,
   ContestService.Default,

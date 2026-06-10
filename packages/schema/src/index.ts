@@ -8,5 +8,6 @@ export * from "./event";
 export * from "./lib/public-id";
 export * from "./service";
 export * from "./submissions";
+export * from "./system-log";
 export * from "./team";
 export * from "./types";
