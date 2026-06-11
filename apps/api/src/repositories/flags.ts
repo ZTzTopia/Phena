@@ -15,6 +15,21 @@ export abstract class FlagRepository {
     );
   }
 
+  static createBatch(data: NewFlag[]) {
+    if (data.length === 0) {
+      return Effect.void;
+    }
+
+    return Effect.flatMap(Db, (env) =>
+      Effect.tryPromise({
+        try: async () => {
+          await env.db.insert(flags).values(data).onConflictDoNothing();
+        },
+        catch: (e) => new Error(String(e)),
+      }),
+    );
+  }
+
   static findByValue(value: string) {
     return Effect.flatMap(Db, (env) =>
       Effect.tryPromise({

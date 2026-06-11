@@ -1,6 +1,7 @@
 import { ConfigKey } from "@phena/schema";
 import { Effect, Fiber } from "effect";
 import { ConfigService } from "./config";
+import { FlagGenerationService } from "./flag-generation";
 
 const globalSchedulerRef = globalThis as typeof globalThis & {
   __phenaSchedulerFiber: Fiber.RuntimeFiber<void, Error> | null;
@@ -129,6 +130,7 @@ export class ContestService extends Effect.Service<ContestService>()("ContestSer
 
             yield* ConfigService.use((svc) => svc.setConfig(ConfigKey.CurrentRound, newRound));
             yield* ConfigService.use((svc) => svc.setConfig(ConfigKey.CurrentTick, 1));
+            yield* FlagGenerationService.use((svc) => svc.generateFlagsForTick(newRound, 1));
           } else {
             yield* ConfigService.use((svc) => svc.setConfig(ConfigKey.CurrentTick, newTick));
           }

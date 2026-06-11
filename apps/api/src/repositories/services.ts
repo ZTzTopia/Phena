@@ -177,6 +177,22 @@ export abstract class ServiceRepository {
     });
   }
 
+  static findAllWithChallengeDetail() {
+    return Effect.flatMap(Db, (env) =>
+      Effect.tryPromise({
+        try: async () =>
+          env.db.query.services.findMany({
+            with: {
+              challenge: {
+                columns: { numFlags: true, releaseRound: true },
+              },
+            },
+          }),
+        catch: (e) => new Error(String(e)),
+      }),
+    );
+  }
+
   static create(data: NewService) {
     return Effect.flatMap(Db, (env) =>
       Effect.tryPromise({
