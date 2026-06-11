@@ -26,15 +26,11 @@ export class ContestService extends Effect.Service<ContestService>()("ContestSer
           return;
         }
 
-        const isRunning = yield* ConfigService.use((svc) => svc.getConfig(ConfigKey.IsRunning));
-        if (!isRunning) {
-          return;
-        }
-
         const tickDuration = yield* ConfigService.use((svc) =>
           svc.getConfig(ConfigKey.TickDuration),
         );
 
+        yield* Effect.logDebug(`Starting scheduler with tick duration: ${tickDuration}`);
         const fiber = yield* Effect.forkDaemon(tickScheduler(tickDuration));
         globalSchedulerRef.__phenaSchedulerFiber = fiber;
       });
@@ -55,8 +51,9 @@ export class ContestService extends Effect.Service<ContestService>()("ContestSer
           return;
         }
 
-        yield* startScheduler();
+        yield* Effect.logDebug("Starting contest");
         yield* ConfigService.use((svc) => svc.setConfig(ConfigKey.IsRunning, true));
+        yield* startScheduler();
       });
 
     const scheduleStartIfNeeded = () =>
@@ -105,12 +102,28 @@ export class ContestService extends Effect.Service<ContestService>()("ContestSer
           return;
         }
 
-        yield* stopScheduler();
+        yield* Effect.logDebug("Stopping contest");
         yield* ConfigService.use((svc) => svc.setConfig(ConfigKey.IsRunning, false));
+        yield* stopScheduler();
       });
 
     const tickScheduler = (tickDurationSeconds: number) =>
       Effect.gen(function* () {
+        const initialRound = yield* ConfigService.use((svc) =>
+          svc.getConfig(ConfigKey.CurrentRound),
+        );
+        const initialTick = yield* ConfigService.use((svc) => svc.getConfig(ConfigKey.CurrentTick));
+
+        yield* Effect.logDebug(`Scheduler starting at round ${initialRound} tick ${initialTick}`);
+
+        // TODO: Check if initial flags need to be generated
+        if (initialRound === 1 && initialTick === 1) {
+          yield* Effect.logDebug("Generating initial flags for round 1 tick 1");
+          yield* FlagGenerationService.use((svc) =>
+            svc.generateFlagsForTick(initialRound, initialTick),
+          );
+        }
+
         while (true) {
           yield* Effect.sleep(`${tickDurationSeconds} seconds`);
 
@@ -131,17 +144,24 @@ export class ContestService extends Effect.Service<ContestService>()("ContestSer
           if (newTick > tickPerRound) {
             const newRound = currentRound + 1;
             if (newRound > totalRounds) {
-              yield* ConfigService.use((svc) => svc.setConfig(ConfigKey.CurrentRound, newRound));
-              yield* ConfigService.use((svc) => svc.setConfig(ConfigKey.CurrentTick, newTick));
-              yield* ConfigService.use((svc) => svc.setConfig(ConfigKey.IsRunning, false));
+              yield* Effect.logDebug(
+                `Contest ended: reached round ${newRound} past total ${totalRounds}`,
+              );
+              yield* ConfigService.use((svc) => svc.setConfig(ConfigKey.CurrentRound, totalRounds));
+              yield* ConfigService.use((svc) => svc.setConfig(ConfigKey.CurrentTick, tickPerRound));
+              yield* stopContest();
               globalSchedulerRef.__phenaSchedulerFiber = null;
               return;
             }
 
+            yield* Effect.logDebug(
+              `Advancing to round ${newRound} tick 1 (was round ${currentRound} tick ${currentTick})`,
+            );
             yield* ConfigService.use((svc) => svc.setConfig(ConfigKey.CurrentRound, newRound));
             yield* ConfigService.use((svc) => svc.setConfig(ConfigKey.CurrentTick, 1));
             yield* FlagGenerationService.use((svc) => svc.generateFlagsForTick(newRound, 1));
           } else {
+            yield* Effect.logDebug(`Advancing to tick ${newTick} (round ${currentRound})`);
             yield* ConfigService.use((svc) => svc.setConfig(ConfigKey.CurrentTick, newTick));
           }
         }
@@ -149,6 +169,7 @@ export class ContestService extends Effect.Service<ContestService>()("ContestSer
 
     const resetContest = () =>
       Effect.gen(function* () {
+        yield* Effect.logDebug("Resetting contest");
         yield* stopScheduler();
 
         if (globalSchedulerRef.__phenaScheduledStartFiber) {
