@@ -8,24 +8,58 @@ import {
   CardContent,
   CardDescription,
 } from "@phena/ui/components/card";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { DetailedError, parseResponse } from "hono/client";
 import { PauseIcon, PlayIcon, ZapIcon, TrophyIcon } from "lucide-react";
 import { toast } from "sonner";
 import { ContestOverview } from "@/app/(admin)/admin/dashboard/_components/contest-overview";
-import { mockDashboardScoreboard, mockTickData } from "./mock-data";
+import { client } from "@/lib/api-client";
 
 export default function AdminDashboardPage() {
-  const scoreboard = mockDashboardScoreboard;
-  const tickData = mockTickData;
+  const queryClient = useQueryClient();
 
-  const isRunning = tickData?.isRunning ?? false;
+  const { data: contestStatus } = useQuery({
+    queryKey: ["admin", "contest", "status"],
+    queryFn: async () => parseResponse(client.api.contest.status.$get()),
+  });
 
-  const handleStart = () => {
-    toast.success("Contest started (mock)");
-  };
+  const startMutation = useMutation({
+    mutationFn: async () => parseResponse(client.api.contest.start.$post()),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin", "contest", "status"] });
+      toast.success("Contest started");
+    },
+    onError: (err) => {
+      toast.error(
+        err instanceof DetailedError
+          ? err.detail.data.error
+          : err instanceof Error
+            ? err.message
+            : "Failed to start contest",
+      );
+    },
+    meta: { skipGlobalError: true },
+  });
 
-  const handleStop = () => {
-    toast.success("Contest stopped (mock)");
-  };
+  const stopMutation = useMutation({
+    mutationFn: async () => parseResponse(client.api.contest.stop.$post()),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin", "contest", "status"] });
+      toast.success("Contest stopped");
+    },
+    onError: (err) => {
+      toast.error(
+        err instanceof DetailedError
+          ? err.detail.data.error
+          : err instanceof Error
+            ? err.message
+            : "Failed to stop contest",
+      );
+    },
+    meta: { skipGlobalError: true },
+  });
+
+  const isRunning = contestStatus?.isRunning ?? false;
 
   return (
     <div className="flex flex-col gap-4 py-4 md:py-6">
@@ -50,12 +84,20 @@ export default function AdminDashboardPage() {
           <CardContent className="space-y-4">
             <div className="flex flex-wrap gap-2">
               {isRunning ? (
-                <Button variant="outline" onClick={handleStop}>
+                <Button
+                  variant="outline"
+                  onClick={() => stopMutation.mutate()}
+                  disabled={stopMutation.isPending}
+                >
                   <PauseIcon className="mr-2 size-4" />
                   Stop Contest
                 </Button>
               ) : (
-                <Button variant="default" onClick={handleStart}>
+                <Button
+                  variant="default"
+                  onClick={() => startMutation.mutate()}
+                  disabled={startMutation.isPending}
+                >
                   <PlayIcon className="mr-2 size-4" />
                   Start Contest
                 </Button>
@@ -73,17 +115,9 @@ export default function AdminDashboardPage() {
             <CardDescription>Top 5 teams</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-2">
-              {scoreboard?.scoreboard?.slice(0, 5)?.map((team: any, index: number) => (
-                <div key={team.teamId} className="flex items-center justify-between py-1">
-                  <div className="flex items-center gap-2">
-                    <span className="w-6 font-mono text-sm">#{index + 1}</span>
-                    <span className="font-medium">{team.teamName}</span>
-                  </div>
-                  <span className="font-mono text-sm">{team.totalScore} pts</span>
-                </div>
-              ))}
-            </div>
+            <p className="text-muted-foreground py-4 text-center">
+              Leaderboard will be available once the scoring engine is active.
+            </p>
           </CardContent>
         </Card>
       </div>

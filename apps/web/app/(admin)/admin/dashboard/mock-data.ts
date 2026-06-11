@@ -1,15 +1,3 @@
-import { mockScoreboardResponse } from "../leaderboard/mock-data";
-
-export const mockTickData = {
-  isRunning: true,
-  currentTick: 42,
-  currentRound: 3,
-};
-
-export const mockDashboardScoreboard = {
-  scoreboard: mockScoreboardResponse.scoreboard.slice(0, 5),
-};
-
 interface MockChallenge {
   id: number;
   name: string;

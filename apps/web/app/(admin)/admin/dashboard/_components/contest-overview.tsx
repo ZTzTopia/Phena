@@ -6,11 +6,8 @@ import { useQuery } from "@tanstack/react-query";
 import { parseResponse } from "hono/client";
 import { UsersIcon, FlagIcon, ServerIcon, ActivityIcon, ClockIcon, TimerIcon } from "lucide-react";
 import { client } from "@/lib/api-client";
-import { mockTickData } from "../mock-data";
 
 export function ContestOverview() {
-  const tickData = mockTickData;
-
   const { data: teamsData } = useQuery({
     queryKey: ["admin", "teams", { page: 1, limit: 1 }],
     queryFn: async () =>
@@ -41,10 +38,17 @@ export function ContestOverview() {
       ),
   });
 
+  const { data: contestStatus } = useQuery({
+    queryKey: ["admin", "contest", "status"],
+    queryFn: async () => parseResponse(client.api.contest.status.$get()),
+  });
+
   const teamsCount = teamsData?.pagination.total ?? 0;
   const challengesCount = challengesData?.pagination.total ?? 0;
   const servicesCount = servicesData?.pagination.total ?? 0;
-  const isRunning = tickData?.isRunning ?? false;
+  const currentRound = contestStatus?.currentRound ?? 0;
+  const currentTick = contestStatus?.currentTick ?? 0;
+  const isRunning = contestStatus?.isRunning ?? false;
 
   return (
     <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -69,9 +73,7 @@ export function ContestOverview() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="text-3xl font-bold tabular-nums">
-            {challengesCount}
-          </div>
+          <div className="text-3xl font-bold tabular-nums">{challengesCount}</div>
           <p className="text-muted-foreground text-xs">Total</p>
         </CardContent>
       </Card>
@@ -105,11 +107,11 @@ export function ContestOverview() {
           <div className="text-muted-foreground mt-2 flex items-center gap-4 text-xs">
             <span className="flex items-center gap-1">
               <ClockIcon className="size-3" />
-              Tick {tickData.currentTick ?? 0}
+              Tick {currentTick}
             </span>
             <span className="flex items-center gap-1">
               <TimerIcon className="size-3" />
-              Round {tickData.currentRound ?? 0}
+              Round {currentRound}
             </span>
           </div>
         </CardContent>

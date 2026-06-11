@@ -2,6 +2,7 @@
 
 import { TeamModel } from "@phena/schema";
 import { useForm } from "@tanstack/react-form";
+import { toast } from "sonner";
 import type { TeamForm } from "../_types";
 
 export interface UseTeamFormOptions {
@@ -26,6 +27,7 @@ export function useTeamForm(options: UseTeamFormOptions = {}) {
     },
     onSubmitInvalid: (props) => {
       console.error(props);
+      toast.error("Form validation failed");
     },
   });
 
