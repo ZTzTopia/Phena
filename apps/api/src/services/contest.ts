@@ -1,5 +1,15 @@
+import { checkerResults } from "@api/db/schema/checker-results";
+import { flags } from "@api/db/schema/flags";
+import { scoresPerTick } from "@api/db/schema/scores";
+import { serviceOperations } from "@api/db/schema/service-operations";
+import { serviceScoresPerTick } from "@api/db/schema/service-scores";
+import { services as servicesTable } from "@api/db/schema/services";
+import { submissions } from "@api/db/schema/submissions";
+import { systemLogs } from "@api/db/schema/system-logs";
 import { ConfigKey } from "@phena/schema";
+import { isNull, sql } from "drizzle-orm";
 import { Effect, Fiber } from "effect";
+import { Db } from "../db";
 import { ConfigService } from "./config";
 import { FlagGenerationService } from "./flag-generation";
 
@@ -137,6 +147,46 @@ export class ContestService extends Effect.Service<ContestService>()("ContestSer
         }
       });
 
+    const resetContest = () =>
+      Effect.gen(function* () {
+        yield* stopScheduler();
+
+        if (globalSchedulerRef.__phenaScheduledStartFiber) {
+          yield* Fiber.interrupt(globalSchedulerRef.__phenaScheduledStartFiber);
+          globalSchedulerRef.__phenaScheduledStartFiber = null;
+        }
+
+        yield* ConfigService.use((svc) => svc.setConfig(ConfigKey.IsRunning, false));
+        yield* ConfigService.use((svc) => svc.setConfig(ConfigKey.CurrentTick, 1));
+        yield* ConfigService.use((svc) => svc.setConfig(ConfigKey.CurrentRound, 1));
+
+        const gameTables = [
+          checkerResults,
+          flags,
+          scoresPerTick,
+          serviceOperations,
+          serviceScoresPerTick,
+          servicesTable,
+          submissions,
+          systemLogs,
+        ] as const;
+
+        yield* Effect.all(
+          gameTables.map((table) =>
+            Effect.flatMap(Db, (env) =>
+              Effect.tryPromise({
+                try: () =>
+                  env.db
+                    .update(table)
+                    .set({ deletedAt: sql`now()` })
+                    .where(isNull(table.deletedAt)),
+                catch: (e) => new Error(String(e)),
+              }),
+            ),
+          ),
+        );
+      });
+
     if (import.meta.hot) {
       import.meta.hot.dispose(() => {
         Effect.runSync(
@@ -159,6 +209,7 @@ export class ContestService extends Effect.Service<ContestService>()("ContestSer
     return {
       startContest,
       stopContest,
+      resetContest,
       scheduleStartIfNeeded,
       reloadSchedule,
     };

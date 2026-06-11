@@ -3,7 +3,7 @@ import { checkerResults, type NewCheckerResult } from "@api/db/schema/checker-re
 import { serviceOperations } from "@api/db/schema/service-operations";
 import { services, type NewService } from "@api/db/schema/services";
 import { teams } from "@api/db/schema/teams";
-import { eq } from "drizzle-orm";
+import { eq, isNull } from "drizzle-orm";
 import { relationsFilterToSQL, sql } from "drizzle-orm";
 import { Effect } from "effect";
 import type { WhereClause } from "../db/types";
@@ -16,6 +16,7 @@ export abstract class ServiceRepository {
       Effect.tryPromise({
         try: async () =>
           env.db.query.services.findMany({
+            where: { deletedAt: { isNull: true } },
             orderBy: (service, { asc }) => [asc(service.createdAt)],
             with: {
               team: { columns: { publicId: true, name: true } },
@@ -50,7 +51,9 @@ export abstract class ServiceRepository {
 
       const dataQuery = Effect.tryPromise(() =>
         env.db.query.services.findMany({
-          where,
+          where: where
+            ? { AND: [{ deletedAt: { isNull: true } }, where] }
+            : { deletedAt: { isNull: true } },
           orderBy: (service, { asc }) => [asc(service.createdAt)],
           with: {
             team: { columns: { publicId: true, name: true } },
@@ -62,7 +65,12 @@ export abstract class ServiceRepository {
       );
 
       const totalQuery = Effect.tryPromise(() =>
-        env.db.$count(services, where ? relationsFilterToSQL(services, where) : undefined),
+        env.db.$count(
+          services,
+          where
+            ? relationsFilterToSQL(services, { AND: [{ deletedAt: { isNull: true } }, where] })
+            : relationsFilterToSQL(services, { deletedAt: { isNull: true } }),
+        ),
       );
 
       return Effect.all([dataQuery, totalQuery]).pipe(
@@ -78,6 +86,7 @@ export abstract class ServiceRepository {
           env.db.query.services.findFirst({
             where: {
               id,
+              deletedAt: { isNull: true },
             },
             with: {
               team: { columns: { publicId: true, name: true } },
@@ -113,7 +122,7 @@ export abstract class ServiceRepository {
 
       const dataQuery = Effect.tryPromise(() =>
         env.db.query.services.findMany({
-          where,
+          where: { AND: [{ deletedAt: { isNull: true } }, where] },
           with: {
             team: { columns: { publicId: true, name: true } },
             challenge: { columns: { publicId: true, title: true } },
@@ -124,7 +133,10 @@ export abstract class ServiceRepository {
       );
 
       const totalQuery = Effect.tryPromise(() =>
-        env.db.$count(services, relationsFilterToSQL(services, where)),
+        env.db.$count(
+          services,
+          relationsFilterToSQL(services, { AND: [{ deletedAt: { isNull: true } }, where] }),
+        ),
       );
 
       return Effect.all([dataQuery, totalQuery]).pipe(
@@ -157,7 +169,7 @@ export abstract class ServiceRepository {
 
       const dataQuery = Effect.tryPromise(() =>
         env.db.query.services.findMany({
-          where,
+          where: { AND: [{ deletedAt: { isNull: true } }, where] },
           with: {
             team: { columns: { publicId: true, name: true } },
             challenge: { columns: { publicId: true, title: true } },
@@ -168,7 +180,10 @@ export abstract class ServiceRepository {
       );
 
       const totalQuery = Effect.tryPromise(() =>
-        env.db.$count(services, relationsFilterToSQL(services, where)),
+        env.db.$count(
+          services,
+          relationsFilterToSQL(services, { AND: [{ deletedAt: { isNull: true } }, where] }),
+        ),
       );
 
       return Effect.all([dataQuery, totalQuery]).pipe(
@@ -182,6 +197,7 @@ export abstract class ServiceRepository {
       Effect.tryPromise({
         try: async () =>
           env.db.query.services.findMany({
+            where: { deletedAt: { isNull: true } },
             with: {
               challenge: {
                 columns: { numFlags: true, releaseRound: true },
@@ -277,7 +293,8 @@ export abstract class ServiceRepository {
               teamId: services.teamId,
               challengeId: services.challengeId,
             })
-            .from(services);
+            .from(services)
+            .where(isNull(services.deletedAt));
 
           const existingPairs = new Set(existing.map((s) => `${s.teamId}-${s.challengeId}`));
 

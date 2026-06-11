@@ -14,6 +14,7 @@ export const systemLogs = pgTable(
     message: text("message").notNull(),
 
     createdAt: timestamp("created_at").notNull().defaultNow(),
+    deletedAt: timestamp("deleted_at"),
   },
   (table) => [
     index("system_logs_team_id_idx").on(table.teamId),

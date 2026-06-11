@@ -21,6 +21,7 @@ export const services = pgTable(
 
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at").notNull().defaultNow(),
+    deletedAt: timestamp("deleted_at"),
   },
   (table) => [
     index("services_team_id_idx").on(table.teamId),

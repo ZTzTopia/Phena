@@ -29,6 +29,7 @@ export const serviceOperations = pgTable(
     resultMessage: text("result_message"),
 
     createdAt: timestamp("created_at").notNull().defaultNow(),
+    deletedAt: timestamp("deleted_at"),
   },
   (table) => [
     index("service_operations_service_id_idx").on(table.serviceId),

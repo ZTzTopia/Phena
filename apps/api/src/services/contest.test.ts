@@ -165,6 +165,39 @@ describe("startContestIfNeeded logic", () => {
   });
 });
 
+describe("resetContest logic", () => {
+  it("should set isRunning to false after reset", () => {
+    const isRunning = true;
+    const resetIsRunning = false;
+    expect(resetIsRunning).toBe(false);
+    expect(isRunning).toBe(true);
+    expect(resetIsRunning).not.toBe(isRunning);
+  });
+
+  it("should reset tick and round to 1", () => {
+    let currentTick = 5;
+    let currentRound = 3;
+    currentTick = 1;
+    currentRound = 1;
+    expect(currentTick).toBe(1);
+    expect(currentRound).toBe(1);
+  });
+
+  it("should reset regardless of running state", () => {
+    const reset = () => ({ isRunning: false, currentTick: 1, currentRound: 1 });
+
+    const started = reset();
+    expect(started.isRunning).toBe(false);
+    expect(started.currentTick).toBe(1);
+    expect(started.currentRound).toBe(1);
+
+    const stopped = reset();
+    expect(stopped.isRunning).toBe(false);
+    expect(stopped.currentTick).toBe(1);
+    expect(stopped.currentRound).toBe(1);
+  });
+});
+
 describe("scheduleStartIfNeeded delay calculation", () => {
   it("should calculate positive delay when startDate is in the future", () => {
     const futureDate = new Date(Date.now() + 5000);

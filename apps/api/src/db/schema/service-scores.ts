@@ -22,6 +22,7 @@ export const serviceScoresPerTick = pgTable(
     totalPoints: integer("total_points").notNull().default(0),
 
     createdAt: timestamp("created_at").notNull().defaultNow(),
+    deletedAt: timestamp("deleted_at"),
   },
   (table) => [
     index("service_scores_team_id_idx").on(table.teamId),

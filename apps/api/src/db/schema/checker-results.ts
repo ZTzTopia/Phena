@@ -29,6 +29,7 @@ export const checkerResults = pgTable(
     latency: real("latency"),
 
     createdAt: timestamp("created_at").notNull().defaultNow(),
+    deletedAt: timestamp("deleted_at"),
   },
   (table) => [
     index("checker_results_service_id_idx").on(table.serviceId),

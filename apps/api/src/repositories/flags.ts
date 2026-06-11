@@ -33,7 +33,10 @@ export abstract class FlagRepository {
   static findByValue(value: string) {
     return Effect.flatMap(Db, (env) =>
       Effect.tryPromise({
-        try: async () => await env.db.query.flags.findFirst({ where: { value } }),
+        try: async () =>
+          await env.db.query.flags.findFirst({
+            where: { value, deletedAt: { isNull: true } },
+          }),
         catch: (e) => new Error(String(e)),
       }),
     );

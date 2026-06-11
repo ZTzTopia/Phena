@@ -71,6 +71,26 @@ const app = new Hono()
       return c.json({ message: "Contest stopped" });
     },
   )
+  .post(
+    "/reset",
+    describeRoute({
+      responses: {
+        200: {
+          description: "Contest reset successfully",
+          content: {
+            "application/json": {
+              schema: resolver(CommonModel.successResponse),
+            },
+          },
+        },
+      },
+    }),
+    requireRole("admin"),
+    async (c) => {
+      await runPromise(ContestService.use((svc) => svc.resetContest()));
+      return c.json({ message: "Contest reset" });
+    },
+  )
   .get(
     "/status",
     describeRoute({

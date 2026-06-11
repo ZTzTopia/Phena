@@ -1,3 +1,4 @@
+import { sql } from "drizzle-orm";
 import {
   bigint,
   bigserial,
@@ -25,9 +26,12 @@ export const flags = pgTable(
     value: text("value").notNull(),
 
     createdAt: timestamp("created_at").notNull().defaultNow(),
+    deletedAt: timestamp("deleted_at"),
   },
   (table) => [
-    uniqueIndex("flags_unique_idx").on(table.serviceId, table.index, table.round, table.tick),
+    uniqueIndex("flags_unique_idx")
+      .on(table.serviceId, table.index, table.round, table.tick)
+      .where(sql`${table.deletedAt} IS NULL`),
     index("flags_created_at_idx").on(table.createdAt),
   ],
 );

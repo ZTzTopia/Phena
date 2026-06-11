@@ -18,6 +18,7 @@ export const scoresPerTick = pgTable(
     totalPoints: integer("total_points").notNull().default(0),
 
     createdAt: timestamp("created_at").notNull().defaultNow(),
+    deletedAt: timestamp("deleted_at"),
   },
   (table) => [
     index("scores_team_id_idx").on(table.teamId),

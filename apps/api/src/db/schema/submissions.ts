@@ -35,6 +35,7 @@ export const submissions = pgTable(
     status: submissionStatusEnum("status").notNull().default("incorrect"),
 
     createdAt: timestamp("created_at").notNull().defaultNow(),
+    deletedAt: timestamp("deleted_at"),
   },
   (table) => [
     index("submissions_team_id_idx").on(table.teamId),

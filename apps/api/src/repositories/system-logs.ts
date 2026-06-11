@@ -11,10 +11,7 @@ export abstract class SystemLogRepository {
     return Effect.flatMap(Db, (env) => {
       const where: WhereClause<"systemLogs"> | undefined = search
         ? {
-            OR: [
-              { message: { ilike: `%${search}%` } },
-              { type: { ilike: `%${search}%` } },
-            ],
+            OR: [{ message: { ilike: `%${search}%` } }, { type: { ilike: `%${search}%` } }],
           }
         : undefined;
 
@@ -23,7 +20,9 @@ export abstract class SystemLogRepository {
           with: {
             team: true,
           },
-          where,
+          where: where
+            ? { AND: [{ deletedAt: { isNull: true } }, where] }
+            : { deletedAt: { isNull: true } },
           limit,
           offset,
           orderBy: { createdAt: "desc" },
@@ -31,7 +30,12 @@ export abstract class SystemLogRepository {
       );
 
       const totalQuery = Effect.tryPromise(() =>
-        env.db.$count(systemLogs, where ? relationsFilterToSQL(systemLogs, where) : undefined),
+        env.db.$count(
+          systemLogs,
+          where
+            ? relationsFilterToSQL(systemLogs, { AND: [{ deletedAt: { isNull: true } }, where] })
+            : relationsFilterToSQL(systemLogs, { deletedAt: { isNull: true } }),
+        ),
       );
 
       return Effect.all([dataQuery, totalQuery]).pipe(

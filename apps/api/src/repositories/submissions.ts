@@ -52,7 +52,9 @@ export abstract class SubmissionRepository {
 
       const dataQuery = Effect.tryPromise(() =>
         env.db.query.submissions.findMany({
-          where,
+          where: where
+            ? { AND: [{ deletedAt: { isNull: true } }, where] }
+            : { deletedAt: { isNull: true } },
           with: {
             team: { columns: { publicId: true, name: true } },
             flag: { columns: { value: true } },
@@ -64,7 +66,12 @@ export abstract class SubmissionRepository {
       );
 
       const totalQuery = Effect.tryPromise(() =>
-        env.db.$count(submissions, where ? relationsFilterToSQL(submissions, where) : undefined),
+        env.db.$count(
+          submissions,
+          relationsFilterToSQL(submissions, {
+            AND: [{ deletedAt: { isNull: true } }, ...(where ? [where] : [])],
+          }),
+        ),
       );
 
       return Effect.all([dataQuery, totalQuery]).pipe(
@@ -81,7 +88,7 @@ export abstract class SubmissionRepository {
       Effect.tryPromise({
         try: async () => {
           const result = await env.db.query.submissions.findFirst({
-            where: { id },
+            where: { id, deletedAt: { isNull: true } },
             with: {
               team: true,
               flag: true,
@@ -145,7 +152,7 @@ export abstract class SubmissionRepository {
 
       const dataQuery = Effect.tryPromise(() =>
         env.db.query.submissions.findMany({
-          where,
+          where: { AND: [{ deletedAt: { isNull: true } }, where] },
           with: {
             team: { columns: { publicId: true, name: true } },
             flag: { columns: { value: true } },
@@ -157,7 +164,10 @@ export abstract class SubmissionRepository {
       );
 
       const totalQuery = Effect.tryPromise(() =>
-        env.db.$count(submissions, relationsFilterToSQL(submissions, where)),
+        env.db.$count(
+          submissions,
+          relationsFilterToSQL(submissions, { AND: [{ deletedAt: { isNull: true } }, where] }),
+        ),
       );
 
       return Effect.all([dataQuery, totalQuery]).pipe(
@@ -178,6 +188,7 @@ export abstract class SubmissionRepository {
               teamId,
               flagId,
               status: "correct",
+              deletedAt: { isNull: true },
             },
           });
           return result ?? null;
