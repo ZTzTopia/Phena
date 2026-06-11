@@ -5,7 +5,7 @@ import { FlagGenerationService } from "@api/services/flag-generation";
 import { SubmissionService } from "@api/services/submission";
 import { SystemLogService } from "@api/services/system-log";
 import { BunContext, BunRuntime } from "@effect/platform-bun";
-import { Cause, Effect, Layer, ManagedRuntime } from "effect";
+import { Cause, Effect, Layer, Logger, LogLevel, ManagedRuntime } from "effect";
 import { HTTPException } from "hono/http-exception";
 import { DbLive } from "../db";
 import { ContestService } from "../services/contest";
@@ -27,6 +27,7 @@ const AppEnvironment = Layer.mergeAll(
   TeamService.Default,
   ServiceService.Default,
   ContestService.Default,
+  Logger.minimumLogLevel(process.env.NODE_ENV === "development" ? LogLevel.Debug : LogLevel.Info),
 );
 const runtime = ManagedRuntime.make(AppEnvironment);
 
