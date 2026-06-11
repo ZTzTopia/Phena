@@ -24,7 +24,6 @@ export enum ConfigKey {
   StartDate = "startDate",
   TickPerRound = "tickPerRound",
   TotalRounds = "totalRounds",
-  EndDate = "endDate",
   AttackPoints = "attackPoints",
   DefensePoints = "defensePoints",
   SlaWeight = "slaWeight",

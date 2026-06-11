@@ -20,9 +20,9 @@ export function ContestConfigCard({
   initialValue: {
     name: string;
     tickDuration: number;
-    roundDuration: number;
+    tickPerRound: number;
+    totalRounds: number;
     startDate: string;
-    endDate: string;
   };
 }) {
   return (
@@ -36,7 +36,8 @@ export function ContestConfigCard({
         contest: {
           [ConfigKey.ContestName]: contest.name,
           [ConfigKey.TickDuration]: contest.tickDuration,
-          [ConfigKey.TickPerRound]: contest.roundDuration,
+          [ConfigKey.TickPerRound]: contest.tickPerRound,
+          [ConfigKey.TotalRounds]: contest.totalRounds,
           [ConfigKey.StartDate]: contest.startDate,
         },
       })}
@@ -72,22 +73,22 @@ export function ContestConfigCard({
             <FieldError errors={getFieldErrors("tickDuration")} />
           </Field>
 
-          <Field data-invalid={Boolean(getFieldError("roundDuration")) || undefined}>
-            <FieldLabel htmlFor="round-duration">Round Duration</FieldLabel>
+          <Field data-invalid={Boolean(getFieldError("tickPerRound")) || undefined}>
+            <FieldLabel htmlFor="tick-per-round">Ticks Per Round</FieldLabel>
             <NumberInput
-              id="round-duration"
-              min={300}
-              max={3600}
+              id="tick-per-round"
+              min={1}
+              max={100}
               step={1}
-              value={draft.roundDuration}
+              value={draft.tickPerRound}
               onValueChange={(value) =>
-                setDraft((prev) => ({ ...prev, roundDuration: value ?? 0 }))
+                setDraft((prev) => ({ ...prev, tickPerRound: value ?? 0 }))
               }
-              endAddon="seconds"
-              aria-invalid={Boolean(getFieldError("roundDuration")) || undefined}
+              endAddon="ticks"
+              aria-invalid={Boolean(getFieldError("tickPerRound")) || undefined}
             />
-            <FieldDescription>How long each round runs.</FieldDescription>
-            <FieldError errors={getFieldErrors("roundDuration")} />
+            <FieldDescription>Number of ticks per round.</FieldDescription>
+            <FieldError errors={getFieldErrors("tickPerRound")} />
           </Field>
 
           <Field data-invalid={Boolean(getFieldError("startDate")) || undefined}>
@@ -106,20 +107,21 @@ export function ContestConfigCard({
             <FieldError errors={getFieldErrors("startDate")} />
           </Field>
 
-          <Field data-invalid={Boolean(getFieldError("endDate")) || undefined}>
-            <FieldLabel htmlFor="end-date">End Date</FieldLabel>
-            <DatePicker
-              value={draft.endDate}
-              mode="date-time"
-              showSeconds={true}
-              onValueChange={(value) => {
-                if (!value) return;
-                setDraft((prev) => ({ ...prev, endDate: value.toISOString() }));
-              }}
-              aria-invalid={Boolean(getFieldError("endDate")) || undefined}
+          <Field data-invalid={Boolean(getFieldError("totalRounds")) || undefined}>
+            <FieldLabel htmlFor="total-rounds">Total Rounds</FieldLabel>
+            <NumberInput
+              id="total-rounds"
+              min={1}
+              max={100}
+              step={1}
+              value={draft.totalRounds}
+              onValueChange={(value) =>
+                setDraft((prev) => ({ ...prev, totalRounds: value ?? 0 }))
+              }
+              aria-invalid={Boolean(getFieldError("totalRounds")) || undefined}
             />
-            <FieldDescription>Contest end date and time (ISO saved).</FieldDescription>
-            <FieldError errors={getFieldErrors("endDate")} />
+            <FieldDescription>Maximum number of rounds before the contest ends.</FieldDescription>
+            <FieldError errors={getFieldErrors("totalRounds")} />
           </Field>
         </FieldGroup>
       )}

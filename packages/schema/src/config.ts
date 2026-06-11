@@ -12,7 +12,6 @@ export const ConfigValueSchemas = {
   [ConfigKey.StartDate]: z.string(),
   [ConfigKey.TickPerRound]: z.coerce.number().int(),
   [ConfigKey.TotalRounds]: z.coerce.number().int(),
-  [ConfigKey.EndDate]: z.string(),
   [ConfigKey.AttackPoints]: z.coerce.number().int(),
   [ConfigKey.DefensePoints]: z.coerce.number().int(),
   [ConfigKey.SlaWeight]: z.coerce.number(),
@@ -31,7 +30,7 @@ export interface ConfigValueTypes {
   [ConfigKey.StartDate]: z.infer<(typeof ConfigValueSchemas)[typeof ConfigKey.StartDate]>;
   [ConfigKey.TickPerRound]: z.infer<(typeof ConfigValueSchemas)[typeof ConfigKey.TickPerRound]>;
   [ConfigKey.TotalRounds]: z.infer<(typeof ConfigValueSchemas)[typeof ConfigKey.TotalRounds]>;
-  [ConfigKey.EndDate]: z.infer<(typeof ConfigValueSchemas)[typeof ConfigKey.EndDate]>;
+
   [ConfigKey.AttackPoints]: z.infer<(typeof ConfigValueSchemas)[typeof ConfigKey.AttackPoints]>;
   [ConfigKey.DefensePoints]: z.infer<(typeof ConfigValueSchemas)[typeof ConfigKey.DefensePoints]>;
   [ConfigKey.SlaWeight]: z.infer<(typeof ConfigValueSchemas)[typeof ConfigKey.SlaWeight]>;
@@ -85,9 +84,9 @@ export const ConfigModel = {
   contestSection: z.object({
     name: z.string().min(1),
     tickDuration: z.number().int().min(30).max(600),
-    roundDuration: z.number().int().min(300).max(3600),
+    tickPerRound: z.number().int().min(1).max(64),
+    totalRounds: z.number().int().min(1).max(256),
     startDate: z.string(),
-    endDate: z.string(),
   }),
   scoringSection: z.object({
     attackPoints: z.number().int().min(1),

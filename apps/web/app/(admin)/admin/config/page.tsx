@@ -40,12 +40,9 @@ export default function ConfigPage() {
   const contest = {
     name: typeof config.contestName === "string" ? config.contestName : "Phena CTF",
     tickDuration: typeof config.tickDuration === "number" ? config.tickDuration : 60,
-    roundDuration: typeof config.tickPerRound === "number" ? config.tickPerRound : 600,
+    tickPerRound: typeof config.tickPerRound === "number" ? config.tickPerRound : 5,
+    totalRounds: typeof config.totalRounds === "number" ? config.totalRounds : 10,
     startDate: typeof config.startDate === "string" ? config.startDate : new Date().toISOString(),
-    endDate:
-      typeof config.endDate === "string"
-        ? config.endDate
-        : new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
   };
 
   const scoring = {

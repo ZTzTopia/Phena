@@ -13,7 +13,6 @@ const defaults: ConfigValueTypes = {
   [ConfigKey.StartDate]: new Date().toISOString(),
   [ConfigKey.TickPerRound]: 5,
   [ConfigKey.TotalRounds]: 10,
-  [ConfigKey.EndDate]: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
   [ConfigKey.AttackPoints]: 100,
   [ConfigKey.DefensePoints]: 50,
   [ConfigKey.SlaWeight]: 0.3,
