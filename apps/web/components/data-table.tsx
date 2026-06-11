@@ -198,20 +198,12 @@ export function DataTable<TData, TValue = unknown>({
   getRowCanExpand,
   renderSubComponent,
 }: DataTableProps<TData, TValue>) {
-  const [pagination, setPagination] = React.useState<PaginationState>({
-    pageIndex: 0,
-    pageSize: initialPageSize,
-  });
-  const [globalFilter, setGlobalFilter] = React.useState("");
-  const [expanded, setExpanded] = React.useState<ExpandedState>({});
-
   const table = useReactTable({
     data,
     columns,
-    state: { pagination, globalFilter, expanded },
-    onPaginationChange: setPagination,
-    onGlobalFilterChange: setGlobalFilter,
-    onExpandedChange: setExpanded,
+    initialState: {
+      pagination: { pageIndex: 0, pageSize: initialPageSize },
+    },
     globalFilterFn: "auto",
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
@@ -226,8 +218,8 @@ export function DataTable<TData, TValue = unknown>({
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <Input
           placeholder={filterPlaceholder}
-          value={globalFilter}
-          onChange={(event) => setGlobalFilter(event.target.value)}
+          value={table.getState().globalFilter}
+          onChange={(event) => table.setGlobalFilter(event.target.value)}
           className="w-full sm:max-w-sm"
         />
         <div className="text-muted-foreground text-xs">
