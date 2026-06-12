@@ -138,7 +138,7 @@ export default function MissionCenterPage() {
                     <YAxis className="retro text-[9px]" tickLine={false} axisLine={false} />
                     <ChartTooltipContent
                       className="retro"
-                      formatter={(value) => [value, "Score"]}
+                      formatter={(value: unknown) => `${value} Score`}
                     />
                     <Area
                       type="monotone"

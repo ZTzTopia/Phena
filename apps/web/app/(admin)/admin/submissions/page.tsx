@@ -3,9 +3,9 @@
 import { useQuery } from "@tanstack/react-query";
 import { parseResponse } from "hono/client";
 import { ServerDataTable } from "@/components/data-table";
+import { usePaginatedSearchState } from "@/hooks/use-paginated-search-state";
 import { client } from "@/lib/api-client";
 import { submissionsColumns } from "./columns";
-import { usePaginatedSearchState } from "@/hooks/use-paginated-search-state";
 
 export default function SubmissionsPage() {
   const {

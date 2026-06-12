@@ -37,7 +37,11 @@ export class ServiceService extends Effect.Service<ServiceService>()("ServiceSer
 
     const getByChallengeId = (challengeId: number, { page, limit, search }: PaginationParams) =>
       Effect.gen(function* () {
-        const result = yield* ServiceRepository.findByChallengeId(challengeId, { page, limit, search });
+        const result = yield* ServiceRepository.findByChallengeId(challengeId, {
+          page,
+          limit,
+          search,
+        });
         return {
           services: result.data,
           pagination: getPaginationMeta(page, limit, result.total),

@@ -177,10 +177,7 @@ function DataTableBody<TData, TValue = unknown>({
         ))
       ) : (
         <TableRow>
-          <TableCell
-            colSpan={columns.length}
-            className="text-muted-foreground h-24 text-center"
-          >
+          <TableCell colSpan={columns.length} className="text-muted-foreground h-24 text-center">
             {noResultsText}
           </TableCell>
         </TableRow>
@@ -311,9 +308,7 @@ export function ServerDataTable<TData, TValue = unknown>({
           onChange={(event) => onSearchChange?.(event.target.value)}
           className="w-full sm:max-w-sm"
         />
-        <div className="text-muted-foreground text-xs">
-          {totalRows ?? data.length} row(s)
-        </div>
+        <div className="text-muted-foreground text-xs">{totalRows ?? data.length} row(s)</div>
       </div>
 
       <div className="overflow-hidden border">

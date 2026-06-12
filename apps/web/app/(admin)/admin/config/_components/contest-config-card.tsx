@@ -81,9 +81,7 @@ export function ContestConfigCard({
               max={100}
               step={1}
               value={draft.tickPerRound}
-              onValueChange={(value) =>
-                setDraft((prev) => ({ ...prev, tickPerRound: value ?? 0 }))
-              }
+              onValueChange={(value) => setDraft((prev) => ({ ...prev, tickPerRound: value ?? 0 }))}
               endAddon="ticks"
               aria-invalid={Boolean(getFieldError("tickPerRound")) || undefined}
             />
@@ -115,9 +113,7 @@ export function ContestConfigCard({
               max={100}
               step={1}
               value={draft.totalRounds}
-              onValueChange={(value) =>
-                setDraft((prev) => ({ ...prev, totalRounds: value ?? 0 }))
-              }
+              onValueChange={(value) => setDraft((prev) => ({ ...prev, totalRounds: value ?? 0 }))}
               aria-invalid={Boolean(getFieldError("totalRounds")) || undefined}
             />
             <FieldDescription>Maximum number of rounds before the contest ends.</FieldDescription>

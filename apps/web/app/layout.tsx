@@ -8,7 +8,7 @@ import { AuthProvider } from "./auth-provider";
 import { QueryProvider } from "./query-provider";
 import { SSEProvider } from "./sse-provider";
 
-const geistMono = Geist_Mono({subsets:['latin'],variable:'--font-mono'});
+const geistMono = Geist_Mono({ subsets: ["latin"], variable: "--font-mono" });
 
 const loraHeading = Lora({
   weight: "700",
@@ -37,7 +37,10 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={cn("dark", loraHeading.variable, geist.variable, "font-mono", geistMono.variable)}>
+    <html
+      lang="en"
+      className={cn("dark", loraHeading.variable, geist.variable, "font-mono", geistMono.variable)}
+    >
       <body className={`antialiased ${pressStart2P.variable} ${vt323.variable}`}>
         <QueryProvider>
           <AuthProvider>

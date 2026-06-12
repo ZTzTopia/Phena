@@ -65,10 +65,7 @@ export abstract class TeamRepository {
     return Effect.flatMap(Db, (env) => {
       const where: WhereClause<"teams"> | undefined = search
         ? {
-            OR: [
-              { name: { ilike: `%${search}%` } },
-              { publicId: { ilike: `%${search}%` } },
-            ],
+            OR: [{ name: { ilike: `%${search}%` } }, { publicId: { ilike: `%${search}%` } }],
           }
         : undefined;
 
@@ -100,10 +97,7 @@ export abstract class TeamRepository {
             AND: [
               { role: { eq: "team" as const } },
               {
-                OR: [
-                  { name: { ilike: `%${search}%` } },
-                  { publicId: { ilike: `%${search}%` } },
-                ],
+                OR: [{ name: { ilike: `%${search}%` } }, { publicId: { ilike: `%${search}%` } }],
               },
             ],
           }

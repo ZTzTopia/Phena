@@ -1,7 +1,7 @@
 "use client";
 
-import { Input } from "@phena/ui/components/8bit/input";
 import { Leaderboard } from "@phena/ui/components/8bit/blocks/leaderboard";
+import { Input } from "@phena/ui/components/8bit/input";
 import { Search } from "pixelarticons/react";
 import { useMemo, useState } from "react";
 import { useAuth } from "@/app/auth-provider";

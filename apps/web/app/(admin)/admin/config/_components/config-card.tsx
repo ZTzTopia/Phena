@@ -11,7 +11,10 @@ import {
 import { useMemo, useState, type Dispatch, type ReactNode, type SetStateAction } from "react";
 import { toast } from "sonner";
 import { type ZodType } from "zod/v4";
-import { type ConfigPatch, useConfigMutation } from "@/app/(admin)/admin/config/_hooks/use-config-mutation";
+import {
+  type ConfigPatch,
+  useConfigMutation,
+} from "@/app/(admin)/admin/config/_hooks/use-config-mutation";
 
 type FieldErrors = Record<string, string>;
 

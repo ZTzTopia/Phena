@@ -1,6 +1,6 @@
 "use client";
 
-import type { SSEEvent, SSEEventType } from "@phena/schema";
+import { type SSEEvent, SSEEventType } from "@phena/schema";
 import { useQueryClient } from "@tanstack/react-query";
 import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from "react";
 
@@ -80,15 +80,15 @@ export function SSEProvider({ children }: { children: ReactNode }) {
     };
 
     const eventTypes: SSEEventType[] = [
-      "connected",
-      "ping",
-      "notification",
-      "activity",
-      "scoreboard",
-      "tick",
-      "service_status",
-      "config_change",
-      "log",
+      SSEEventType.Connected,
+      SSEEventType.Ping,
+      SSEEventType.Notification,
+      SSEEventType.Activity,
+      SSEEventType.Scoreboard,
+      SSEEventType.Tick,
+      SSEEventType.ServiceStatus,
+      SSEEventType.ConfigChange,
+      SSEEventType.Log,
     ];
 
     const listeners = eventTypes.map((type) => ({

@@ -14,8 +14,8 @@ import configRoutes from "./routes/config";
 import contestRoutes from "./routes/contest";
 import eventRoutes from "./routes/events";
 import serviceRoutes from "./routes/services";
-import systemLogRoutes from "./routes/system-logs";
 import submissionRoutes from "./routes/submissions";
+import systemLogRoutes from "./routes/system-logs";
 import teamRoutes from "./routes/teams";
 import { ContestService } from "./services/contest";
 

@@ -13,12 +13,12 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { DetailedError, parseResponse } from "hono/client";
 import { PlusIcon } from "lucide-react";
 import { useState } from "react";
-import { usePaginatedSearchState } from "@/hooks/use-paginated-search-state";
 import { toast } from "sonner";
 import { ChallengeForm } from "@/app/(admin)/admin/challenges/_components/challenge-form";
 import Loading from "@/app/(admin)/loading";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { ServerDataTable } from "@/components/data-table";
+import { usePaginatedSearchState } from "@/hooks/use-paginated-search-state";
 import { client } from "@/lib/api-client";
 import type { ChallengeFormInput, ChallengeResponse } from "./_types";
 import { getChallengeColumns } from "./columns";
@@ -46,7 +46,11 @@ export default function ChallengesPage() {
   } = usePaginatedSearchState({ initialPageSize: 20 });
 
   const { data, isLoading, isFetching } = useQuery({
-    queryKey: ["admin", "challenges", { page: pageIndex + 1, limit: pageSize, search: debouncedSearch }],
+    queryKey: [
+      "admin",
+      "challenges",
+      { page: pageIndex + 1, limit: pageSize, search: debouncedSearch },
+    ],
     queryFn: async () =>
       parseResponse(
         client.api.challenges.$get({

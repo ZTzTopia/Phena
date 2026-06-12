@@ -9,12 +9,12 @@ import {
   CardTitle,
 } from "@phena/ui/components/card";
 import { Textarea } from "@phena/ui/components/textarea";
+import { DetailedError } from "hono/client";
 import { FlagIcon, RefreshCwIcon } from "lucide-react";
 import { useCallback, useRef, useState } from "react";
 import { toast } from "sonner";
 import { useConfigMutation } from "@/app/(admin)/admin/config/_hooks/use-config-mutation";
 import { useFlagPreview } from "@/app/(admin)/admin/config/_hooks/use-flag-preview";
-import { DetailedError } from "hono/client";
 
 const EXPRESSIONS = [
   { name: "challengeId", description: "Challenge ID", group: "Context" },

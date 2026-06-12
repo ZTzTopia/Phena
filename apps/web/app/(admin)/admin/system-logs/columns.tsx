@@ -1,9 +1,9 @@
 "use client";
 
 import type { SystemLog } from "@phena/schema";
+import type { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "@phena/ui/components/badge";
 import { Button } from "@phena/ui/components/button";
-import type { ColumnDef } from "@tanstack/react-table";
 import { ArrowUpDownIcon } from "lucide-react";
 
 const typeVariant: Record<string, "default" | "secondary" | "destructive"> = {
@@ -48,16 +48,12 @@ export const systemLogColumns: ColumnDef<SystemLog>[] = [
   {
     accessorKey: "message",
     header: sortableHeader("Message"),
-    cell: ({ row }) => (
-      <span className="max-w-md truncate text-sm">{row.original.message}</span>
-    ),
+    cell: ({ row }) => <span className="max-w-md truncate text-sm">{row.original.message}</span>,
   },
   {
     accessorKey: "teamName",
     header: sortableHeader("Team"),
-    cell: ({ row }) => (
-      <span className="text-sm">{row.original.team?.name ?? "—"}</span>
-    ),
+    cell: ({ row }) => <span className="text-sm">{row.original.team?.name ?? "—"}</span>,
   },
   {
     id: "roundTick",
