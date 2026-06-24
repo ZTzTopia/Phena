@@ -31,11 +31,7 @@ const app = new Hono()
               try: () =>
                 stream.writeSSE({
                   event: event.type,
-                  data: JSON.stringify(
-                    typeof event.data === "object"
-                      ? { ...event.data, timestamp: event.timestamp }
-                      : { data: event.data, timestamp: event.timestamp },
-                  ),
+                  data: JSON.stringify({ data: event.data, timestamp: event.timestamp }),
                   id: nanoid(), // Umm, what this use case? is for replaying the
                   // event after a client reconnect? is the server already handle
                   // it internally?
@@ -65,7 +61,9 @@ const app = new Hono()
                 );
               }
 
-              yield* EventService.use((svc) => svc.startPingFiber(writer, auth.role));
+              yield* EventService.use((svc) =>
+                svc.startPingFiber(writer, (s: string) => stream.write(s), auth.role),
+              );
 
               stream.onAbort(() => {
                 runPromise(EventService.use((svc) => svc.removeStream(writer)));
@@ -110,25 +108,28 @@ const app = new Hono()
     async (c) => {
       const auth = c.get("auth");
       const body = c.req.valid("json");
+      const payload = JSON.stringify({
+        type: body.type,
+        data: body.data,
+        timestamp: Date.now(),
+      } satisfies SSEEvent);
 
       if (auth.role !== "admin") {
         await runPromise(
-          RedisClient.use((r) => r.publish(SSE_EVENT_CHANNELS.Team(auth.id), body.data)),
+          RedisClient.use((r) => r.publish(SSE_EVENT_CHANNELS.Team(auth.id), payload)),
         );
         return c.json({ message: "Successfully published event to team channel" });
       }
 
       if (body.teamId) {
         await runPromise(
-          RedisClient.use((r) =>
-            r.publish(SSE_EVENT_CHANNELS.Team(body.teamId!), JSON.stringify(body)),
-          ),
+          RedisClient.use((r) => r.publish(SSE_EVENT_CHANNELS.Team(body.teamId!), payload)),
         );
         return c.json({ message: "Successfully published event to team channel" });
       }
 
       await runPromise(
-        RedisClient.use((r) => r.publish(SSE_EVENT_CHANNELS.Global, JSON.stringify(body))),
+        RedisClient.use((r) => r.publish(SSE_EVENT_CHANNELS.Global, payload)),
       );
       return c.json({ message: "Successfully published event to global channel" });
     },

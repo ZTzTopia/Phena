@@ -2,7 +2,7 @@
 
 import { type SSEEvent, SSEEventType } from "@phena/schema";
 import { useQueryClient } from "@tanstack/react-query";
-import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from "react";
 
 type EventCallback = (event: SSEEvent) => void;
 
@@ -18,12 +18,8 @@ interface SSEContextValue {
 const SSEContext = createContext<SSEContextValue | null>(null);
 
 function getSSEUrl(): string {
-  if (process.env.NODE_ENV === "production") {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
-    return `${apiUrl}/api/events`;
-  }
-
-  return "/api/events";
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
+  return `${apiUrl}/api/events`;
 }
 
 export function SSEProvider({ children }: { children: ReactNode }) {
@@ -34,7 +30,7 @@ export function SSEProvider({ children }: { children: ReactNode }) {
   const eventSourceRef = useRef<EventSource | null>(null);
   const subscribersRef = useRef<Map<string, Set<EventCallback>>>(new Map());
 
-  const subscribe = (eventTypes: SSEEventType[], callback: EventCallback): (() => void) => {
+  const subscribe = useCallback((eventTypes: SSEEventType[], callback: EventCallback): (() => void) => {
     const unsubscribers: (() => void)[] = [];
 
     for (const type of eventTypes) {
@@ -53,7 +49,7 @@ export function SSEProvider({ children }: { children: ReactNode }) {
         unsub();
       }
     };
-  };
+  }, []);
 
   useEffect(() => {
     const url = getSSEUrl();
@@ -81,7 +77,6 @@ export function SSEProvider({ children }: { children: ReactNode }) {
 
     const eventTypes: SSEEventType[] = [
       SSEEventType.Connected,
-      SSEEventType.Ping,
       SSEEventType.Notification,
       SSEEventType.Activity,
       SSEEventType.Scoreboard,

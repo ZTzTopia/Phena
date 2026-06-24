@@ -101,6 +101,7 @@ export class EventService extends Effect.Service<EventService>()("EventService",
 
     const startPingFiber = (
       writer: StreamWriter,
+      rawWriter: (s: string) => Promise<unknown>,
       role?: string,
     ): Effect.Effect<void, Error, never> =>
       Effect.sync(() => {
@@ -118,10 +119,9 @@ export class EventService extends Effect.Service<EventService>()("EventService",
                 return 0;
               }
 
-              yield* writer({
-                type: SSEEventType.Ping,
-                data: {},
-                timestamp: Date.now(),
+              yield* Effect.tryPromise({
+                try: () => rawWriter(": keepalive\n\n"),
+                catch: (e) => new Error(`Keepalive write failed: ${String(e)}`),
               });
               return 0;
             }),
