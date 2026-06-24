@@ -1,8 +1,8 @@
 "use client";
 
 import { Badge } from "@phena/ui/components/badge";
-import { ActivityIcon, ShieldIcon, SwordIcon } from "lucide-react";
-import type { ChallengePoints } from "../columns";
+import { ActivityIcon, FlagIcon, FlagTriangleRightIcon, ShieldIcon, SwordIcon } from "lucide-react";
+import { slaColor, type ChallengePoints } from "../columns";
 
 interface LeaderboardBreakdownProps {
   challenges: ChallengePoints[];
@@ -19,7 +19,7 @@ export function LeaderboardBreakdown({ challenges }: LeaderboardBreakdownProps) 
               <span className="text-sm font-medium">{challenge.challengeName}</span>
               <Badge>{challenge.totalPoints} pts</Badge>
             </div>
-            <div className="text-muted-foreground grid grid-cols-1 gap-2 text-xs sm:grid-cols-3">
+            <div className="text-muted-foreground grid grid-cols-2 gap-2 text-xs sm:grid-cols-5">
               <div className="flex items-center gap-1">
                 <SwordIcon className="size-3" />
                 <span>Attack: {challenge.attackPoints}</span>
@@ -29,8 +29,22 @@ export function LeaderboardBreakdown({ challenges }: LeaderboardBreakdownProps) 
                 <span>Defense: {challenge.defensePoints}</span>
               </div>
               <div className="flex items-center gap-1">
+                <FlagTriangleRightIcon className="size-3" />
+                <span>Stolen: {challenge.flagsStolen}</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <FlagIcon className="size-3" />
+                <span>Defended: {challenge.flagsDefended}</span>
+              </div>
+              <div className="flex items-center gap-1">
                 <ActivityIcon className="size-3" />
-                <span>SLA: {challenge.slaPoints}</span>
+                <span>
+                  SLA:{" "}
+                  <span className={`font-mono ${slaColor(challenge.slaUp, challenge.slaTotal)}`}>
+                    {challenge.slaTotal === 0 ? "0/0" : `${challenge.slaUp}/${challenge.slaTotal}`}
+                  </span>
+                  <span className="text-muted-foreground ml-1">({challenge.slaPoints} pts)</span>
+                </span>
               </div>
             </div>
           </div>

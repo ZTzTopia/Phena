@@ -14,8 +14,10 @@ import { PauseIcon, PlayIcon, RotateCcwIcon, ZapIcon, TrophyIcon } from "lucide-
 import { useState } from "react";
 import { toast } from "sonner";
 import { ContestOverview } from "@/app/(admin)/admin/dashboard/_components/contest-overview";
+import { useSSE } from "@/app/sse-provider";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { client } from "@/lib/api-client";
+import { ScoreboardModel, SSEEventType } from "@phena/schema";
 
 export default function AdminDashboardPage() {
   const queryClient = useQueryClient();
@@ -79,9 +81,22 @@ export default function AdminDashboardPage() {
     meta: { skipGlobalError: true },
   });
 
+  const { data: scoreboardData, isLoading: isScoreboardLoading } = useQuery({
+    queryKey: ["admin", "scoreboard"],
+    queryFn: async () => {
+      const res = await parseResponse(client.api.scoreboard.$get());
+      return ScoreboardModel.standingsResponse.parse(res);
+    },
+  });
+
+  useSSE([SSEEventType.Scoreboard], {
+    invalidateQueries: { [SSEEventType.Scoreboard]: ["admin", "scoreboard"] },
+  });
+
   const [resetConfirmOpen, setResetConfirmOpen] = useState(false);
 
   const isRunning = contestStatus?.isRunning ?? false;
+  const topTeams = scoreboardData?.standings.slice(0, 5) ?? [];
 
   return (
     <div className="flex flex-col gap-4 py-4 md:py-6">
@@ -149,9 +164,32 @@ export default function AdminDashboardPage() {
             <CardDescription>Top 5 teams</CardDescription>
           </CardHeader>
           <CardContent>
-            <p className="text-muted-foreground py-4 text-center">
-              Leaderboard will be available once the scoring engine is active.
-            </p>
+            {isScoreboardLoading ? (
+              <p className="text-muted-foreground py-4 text-center">Loading...</p>
+            ) : topTeams.length === 0 ? (
+              <p className="text-muted-foreground py-4 text-center">
+                No teams on the leaderboard yet.
+              </p>
+            ) : (
+              <ol className="space-y-2">
+                {topTeams.map((team) => (
+                  <li
+                    key={team.teamId}
+                    className="flex items-center justify-between bg-muted/50 px-3 py-2"
+                  >
+                    <div className="flex items-center gap-3">
+                      <span className="text-muted-foreground text-sm tabular-nums">
+                        #{team.rank}
+                      </span>
+                      <span className="font-medium text-sm">{team.teamName}</span>
+                    </div>
+                    <span className="font-bold text-sm tabular-nums">
+                      {team.totalPoints.toLocaleString()}
+                    </span>
+                  </li>
+                ))}
+              </ol>
+            )}
           </CardContent>
         </Card>
       </div>

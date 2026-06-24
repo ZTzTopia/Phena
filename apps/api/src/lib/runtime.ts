@@ -9,6 +9,7 @@ import { Cause, Effect, Layer, Logger, LogLevel, ManagedRuntime } from "effect";
 import { HTTPException } from "hono/http-exception";
 import { DbLive } from "../db";
 import { ContestService } from "../services/contest";
+import { ScoreService } from "../services/score";
 import { ServiceService } from "../services/service";
 import { TeamService } from "../services/team";
 import { domainErrors, type DomainError } from "./errors";
@@ -22,6 +23,7 @@ const AppEnvironment = Layer.mergeAll(
   ConfigService.Default,
   EventService.Default,
   FlagGenerationService.Default,
+  ScoreService.Default,
   SubmissionService.Default,
   SystemLogService.Default,
   TeamService.Default,

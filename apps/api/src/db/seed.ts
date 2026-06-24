@@ -157,114 +157,114 @@ const seedDb = Effect.gen(function* () {
     );
   }
 
-  const seededServices = yield* selectServices;
+  // const seededServices = yield* selectServices;
 
-  const flagData: (typeof flags.$inferInsert)[] = [];
-  for (const service of seededServices) {
-    for (let round = 1; round <= 3; round++) {
-      for (let tick = 1; tick <= 10; tick++) {
-        flagData.push({
-          serviceId: service.id,
-          round,
-          tick,
-          index: 0,
-          value: `PHENA{${Bun.randomUUIDv7()}}`,
-        });
-      }
-    }
-  }
+  // const flagData: (typeof flags.$inferInsert)[] = [];
+  // for (const service of seededServices) {
+  //   for (let round = 1; round <= 3; round++) {
+  //     for (let tick = 1; tick <= 10; tick++) {
+  //       flagData.push({
+  //         serviceId: service.id,
+  //         round,
+  //         tick,
+  //         index: 0,
+  //         value: `PHENA{${Bun.randomUUIDv7()}}`,
+  //       });
+  //     }
+  //   }
+  // }
 
-  if (flagData.length > 0) {
-    yield* insertFlags(flagData);
-    yield* Effect.logInfo(`Created ${flagData.length} flags`);
-  }
+  // if (flagData.length > 0) {
+  //   yield* insertFlags(flagData);
+  //   yield* Effect.logInfo(`Created ${flagData.length} flags`);
+  // }
 
-  const seededFlags = yield* selectFlags;
+  // const seededFlags = yield* selectFlags;
 
-  const scoreData: (typeof scoresPerTick.$inferInsert)[] = [];
-  for (const team of seededTeams) {
-    for (let round = 1; round <= 3; round++) {
-      for (let tick = 1; tick <= 10; tick++) {
-        const attackPoints = Math.floor(Math.random() * 100);
-        const defensePoints = Math.floor(Math.random() * 50);
-        const slaPoints = Math.floor(Math.random() * 100);
-        scoreData.push({
-          teamId: team.id,
-          round,
-          tick,
-          attackPoints,
-          defensePoints,
-          slaPoints,
-          totalPoints: attackPoints + defensePoints + slaPoints,
-        });
-      }
-    }
-  }
+  // const scoreData: (typeof scoresPerTick.$inferInsert)[] = [];
+  // for (const team of seededTeams) {
+  //   for (let round = 1; round <= 3; round++) {
+  //     for (let tick = 1; tick <= 10; tick++) {
+  //       const attackPoints = Math.floor(Math.random() * 100);
+  //       const defensePoints = Math.floor(Math.random() * 50);
+  //       const slaPoints = Math.floor(Math.random() * 100);
+  //       scoreData.push({
+  //         teamId: team.id,
+  //         round,
+  //         tick,
+  //         attackPoints,
+  //         defensePoints,
+  //         slaPoints,
+  //         totalPoints: attackPoints + defensePoints + slaPoints,
+  //       });
+  //     }
+  //   }
+  // }
 
-  if (scoreData.length > 0) {
-    yield* insertScores(scoreData);
-    yield* Effect.logInfo(`Created ${scoreData.length} score entries`);
-  }
+  // if (scoreData.length > 0) {
+  //   yield* insertScores(scoreData);
+  //   yield* Effect.logInfo(`Created ${scoreData.length} score entries`);
+  // }
 
-  const serviceScoreData: (typeof serviceScoresPerTick.$inferInsert)[] = [];
-  for (const service of seededServices) {
-    for (let round = 1; round <= 3; round++) {
-      for (let tick = 1; tick <= 10; tick++) {
-        const attackPoints = Math.floor(Math.random() * 100);
-        const defensePoints = Math.floor(Math.random() * 50);
-        const slaPoints = Math.floor(Math.random() * 100);
-        serviceScoreData.push({
-          teamId: service.teamId,
-          serviceId: service.id,
-          round,
-          tick,
-          attackPoints,
-          defensePoints,
-          slaPoints,
-          totalPoints: attackPoints + defensePoints + slaPoints,
-        });
-      }
-    }
-  }
+  // const serviceScoreData: (typeof serviceScoresPerTick.$inferInsert)[] = [];
+  // for (const service of seededServices) {
+  //   for (let round = 1; round <= 3; round++) {
+  //     for (let tick = 1; tick <= 10; tick++) {
+  //       const attackPoints = Math.floor(Math.random() * 100);
+  //       const defensePoints = Math.floor(Math.random() * 50);
+  //       const slaPoints = Math.floor(Math.random() * 100);
+  //       serviceScoreData.push({
+  //         teamId: service.teamId,
+  //         serviceId: service.id,
+  //         round,
+  //         tick,
+  //         attackPoints,
+  //         defensePoints,
+  //         slaPoints,
+  //         totalPoints: attackPoints + defensePoints + slaPoints,
+  //       });
+  //     }
+  //   }
+  // }
 
-  if (serviceScoreData.length > 0) {
-    yield* insertServiceScores(serviceScoreData);
-    yield* Effect.logInfo(`Created ${serviceScoreData.length} service score entries`);
-  }
+  // if (serviceScoreData.length > 0) {
+  //   yield* insertServiceScores(serviceScoreData);
+  //   yield* Effect.logInfo(`Created ${serviceScoreData.length} service score entries`);
+  // }
 
-  const submissionData: (typeof submissions.$inferInsert)[] = [];
-  for (const team of seededTeams) {
-    for (let round = 1; round <= 3; round++) {
-      for (let tick = 1; tick <= 10; tick++) {
-        const numSubmissions = Math.floor(Math.random() * 5) + 1;
-        for (let i = 0; i < numSubmissions; i++) {
-          const teamFlags = seededFlags.filter((f) => {
-            const service = seededServices.find((s) => s.id === f.serviceId);
-            return service && service.teamId !== team.id;
-          });
-          if (teamFlags.length === 0) continue;
+  // const submissionData: (typeof submissions.$inferInsert)[] = [];
+  // for (const team of seededTeams) {
+  //   for (let round = 1; round <= 3; round++) {
+  //     for (let tick = 1; tick <= 10; tick++) {
+  //       const numSubmissions = Math.floor(Math.random() * 5) + 1;
+  //       for (let i = 0; i < numSubmissions; i++) {
+  //         const teamFlags = seededFlags.filter((f) => {
+  //           const service = seededServices.find((s) => s.id === f.serviceId);
+  //           return service && service.teamId !== team.id;
+  //         });
+  //         if (teamFlags.length === 0) continue;
 
-          const flag = teamFlags[Math.floor(Math.random() * teamFlags.length)];
-          if (!flag) continue;
+  //         const flag = teamFlags[Math.floor(Math.random() * teamFlags.length)];
+  //         if (!flag) continue;
 
-          const isCorrect = Math.random() > 0.5;
-          submissionData.push({
-            teamId: team.id,
-            flagId: flag.id,
-            round,
-            tick,
-            value: flag.value,
-            status: (isCorrect ? "correct" : "incorrect") as "correct" | "incorrect",
-          });
-        }
-      }
-    }
-  }
+  //         const isCorrect = Math.random() > 0.5;
+  //         submissionData.push({
+  //           teamId: team.id,
+  //           flagId: flag.id,
+  //           round,
+  //           tick,
+  //           value: flag.value,
+  //           status: isCorrect ? "correct" : "incorrect",
+  //         });
+  //       }
+  //     }
+  //   }
+  // }
 
-  if (submissionData.length > 0) {
-    yield* insertSubmissions(submissionData);
-    yield* Effect.logInfo(`Created ${submissionData.length} submissions`);
-  }
+  // if (submissionData.length > 0) {
+  //   yield* insertSubmissions(submissionData);
+  //   yield* Effect.logInfo(`Created ${submissionData.length} submissions`);
+  // }
 
   const adminPasswordHash = yield* hashPassword("admin");
   yield* seedAdminTeam(adminPasswordHash);

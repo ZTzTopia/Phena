@@ -36,6 +36,7 @@ export abstract class FlagRepository {
         try: async () =>
           await env.db.query.flags.findFirst({
             where: { value, deletedAt: { isNull: true } },
+            with: { service: { columns: { teamId: true } } },
           }),
         catch: (e) => new Error(String(e)),
       }),

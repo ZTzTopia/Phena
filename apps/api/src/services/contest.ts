@@ -12,6 +12,7 @@ import { Effect, Fiber } from "effect";
 import { Db } from "../db";
 import { ConfigService } from "./config";
 import { FlagGenerationService } from "./flag-generation";
+import { ScoreService } from "./score";
 
 const globalSchedulerRef = globalThis as typeof globalThis & {
   __phenaSchedulerFiber: Fiber.RuntimeFiber<void, Error> | null;
@@ -140,8 +141,13 @@ export class ContestService extends Effect.Service<ContestService>()("ContestSer
             svc.getConfig(ConfigKey.TotalRounds),
           );
 
+          // This will calculate scores for every round and sla for every tick, but the flag
+          // stolen and flag defended is real time right?
+
           const newTick = currentTick + 1;
           if (newTick > tickPerRound) {
+            yield* ScoreService.use((svc) => svc.computeRoundScores(currentRound));
+
             const newRound = currentRound + 1;
             if (newRound > totalRounds) {
               yield* Effect.logDebug(
@@ -161,6 +167,7 @@ export class ContestService extends Effect.Service<ContestService>()("ContestSer
             yield* ConfigService.use((svc) => svc.setConfig(ConfigKey.CurrentTick, 1));
             yield* FlagGenerationService.use((svc) => svc.generateFlagsForTick(newRound, 1));
           } else {
+            yield* ScoreService.use((svc) => svc.computeSlaForTick(currentRound, currentTick));
             yield* Effect.logDebug(`Advancing to tick ${newTick} (round ${currentRound})`);
             yield* ConfigService.use((svc) => svc.setConfig(ConfigKey.CurrentTick, newTick));
           }
