@@ -52,6 +52,33 @@ export class ContestService extends Effect.Service<ContestService>()("ContestSer
           return;
         }
 
+        const totalRounds = yield* ConfigService.use((svc) => svc.getConfig(ConfigKey.TotalRounds));
+        const currentRound = yield* ConfigService.use((svc) =>
+          svc.getConfig(ConfigKey.CurrentRound),
+        );
+        const tickPerRound = yield* ConfigService.use((svc) =>
+          svc.getConfig(ConfigKey.TickPerRound),
+        );
+        const currentTick = yield* ConfigService.use((svc) => svc.getConfig(ConfigKey.CurrentTick));
+        const hasEnded =
+          currentRound > totalRounds ||
+          (currentRound === totalRounds && currentTick >= tickPerRound);
+        if (hasEnded) {
+          yield* Effect.fail(new Error("Contest has already ended. Reset the contest first"));
+          return;
+        }
+
+        const serviceCount = yield* Effect.flatMap(Db, (env) =>
+          Effect.tryPromise({
+            try: () => env.db.$count(servicesTable, isNull(servicesTable.deletedAt)),
+            catch: (e) => new Error(String(e)),
+          }),
+        );
+        if (serviceCount === 0) {
+          yield* Effect.fail(new Error("No services configured. Add services before starting"));
+          return;
+        }
+
         yield* Effect.logDebug("Starting contest");
         yield* ConfigService.use((svc) => svc.setConfig(ConfigKey.IsRunning, true));
         yield* startScheduler();
