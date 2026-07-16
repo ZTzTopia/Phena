@@ -11,7 +11,6 @@ type SSEConnectionState = "connecting" | "connected" | "disconnected" | "error";
 interface SSEContextValue {
   connectionState: SSEConnectionState;
   subscribe: (eventTypes: SSEEventType[], callback: EventCallback) => () => void;
-  lastEvent: SSEEvent | null;
   error: Error | null;
 }
 
@@ -24,7 +23,6 @@ function getSSEUrl(): string {
 
 export function SSEProvider({ children }: { children: ReactNode }) {
   const [connectionState, setConnectionState] = useState<SSEConnectionState>("disconnected");
-  const [lastEvent, setLastEvent] = useState<SSEEvent | null>(null);
   const [error, setError] = useState<Error | null>(null);
 
   const eventSourceRef = useRef<EventSource | null>(null);
@@ -92,7 +90,6 @@ export function SSEProvider({ children }: { children: ReactNode }) {
         try {
           const event = JSON.parse(e.data) as SSEEvent;
           const typedEvent = { ...event, type } as SSEEvent;
-          setLastEvent(typedEvent);
 
           const callbacks = subscribersRef.current.get(type);
           callbacks?.forEach((cb) => cb(typedEvent));
@@ -118,7 +115,7 @@ export function SSEProvider({ children }: { children: ReactNode }) {
   }, []);
 
   return (
-    <SSEContext.Provider value={{ connectionState, subscribe, lastEvent, error }}>
+    <SSEContext.Provider value={{ connectionState, subscribe, error }}>
       {children}
     </SSEContext.Provider>
   );
@@ -141,10 +138,12 @@ type UseSSEOptions = {
 
 export function useSSE(eventTypes: SSEEventType[], options: UseSSEOptions = {}) {
   const { enabled = true, onEvent, invalidateQueries } = options;
-  const { subscribe, connectionState, lastEvent, error } = useSSEContext();
+  const { subscribe, connectionState, error } = useSSEContext();
   const queryClient = useQueryClient();
   const onEventRef = useRef(onEvent);
   onEventRef.current = onEvent;
+  const invalidateRef = useRef(invalidateQueries);
+  invalidateRef.current = invalidateQueries;
 
   useEffect(() => {
     if (!enabled) return;
@@ -152,8 +151,9 @@ export function useSSE(eventTypes: SSEEventType[], options: UseSSEOptions = {}) 
     const unsubscribe = subscribe(eventTypes, (event) => {
       onEventRef.current?.(event);
 
-      if (invalidateQueries?.[event.type]) {
-        const queryKeys = invalidateQueries[event.type]!;
+      const inv = invalidateRef.current;
+      if (inv?.[event.type]) {
+        const queryKeys = inv[event.type]!;
         for (const key of queryKeys) {
           queryClient.invalidateQueries({ queryKey: [key] });
         }
@@ -161,9 +161,10 @@ export function useSSE(eventTypes: SSEEventType[], options: UseSSEOptions = {}) 
     });
 
     return unsubscribe;
-  }, [enabled, eventTypes, subscribe, invalidateQueries, queryClient]);
+    // ponytail: eventTypes is stable per-call site (module-scope enums), subscribe/queryClient stable from context
+  }, [enabled, eventTypes, subscribe, queryClient]);
 
-  return { connectionState, lastEvent, error };
+  return { connectionState, error };
 }
 
 export function useSSEConnection() {
