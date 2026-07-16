@@ -44,7 +44,6 @@ type DataTableBaseProps<TData, TValue = unknown> = {
   data: TData[];
   filterPlaceholder?: string;
   noResultsText?: string;
-  pageSizeOptions?: number[];
   getRowCanExpand?: (row: Row<TData>) => boolean;
   renderSubComponent?: (props: { row: Row<TData> }) => React.ReactNode;
 };
@@ -201,6 +200,8 @@ export function DataTable<TData, TValue = unknown>({
     initialState: {
       pagination: { pageIndex: 0, pageSize: initialPageSize },
     },
+    autoResetPageIndex: false,
+    autoResetExpanded: false,
     globalFilterFn: "auto",
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
@@ -292,6 +293,7 @@ export function ServerDataTable<TData, TValue = unknown>({
     },
     onGlobalFilterChange: (value) => onSearchChange?.(value),
     onExpandedChange: setExpanded,
+    autoResetExpanded: false,
     globalFilterFn: "auto",
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
