@@ -4,7 +4,14 @@ import type { Submission } from "@phena/schema";
 import type { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "@phena/ui/components/badge";
 import { Button } from "@phena/ui/components/button";
-import { ArrowUpDownIcon } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@phena/ui/components/dialog";
+import { ArrowUpDownIcon, EyeIcon } from "lucide-react";
 
 const statusVariant: Record<string, "default" | "secondary" | "destructive" | "outline"> = {
   correct: "default",
@@ -61,11 +68,29 @@ export const submissionsColumns: ColumnDef<Submission>[] = [
   {
     accessorKey: "flagValue",
     header: sortableHeader("Flag"),
-    cell: ({ row }) => (
-      <span className="font-mono text-xs">
-        {maskFlag(row.original.flag?.value ?? row.original.value)}
-      </span>
-    ),
+    cell: ({ row }) => {
+      const flag = row.original.flag?.value ?? row.original.value;
+      return (
+        <span className="inline-flex items-center gap-1.5">
+          <span className="font-mono text-xs">{maskFlag(flag)}</span>
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button variant="ghost" size="icon" className="size-6">
+                <EyeIcon className="size-3" />
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Flag</DialogTitle>
+              </DialogHeader>
+              <code className="block break-all bg-muted p-3 text-xs font-mono">
+                {flag}
+              </code>
+            </DialogContent>
+          </Dialog>
+        </span>
+      );
+    },
   },
   {
     accessorKey: "status",
