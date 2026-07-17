@@ -25,6 +25,12 @@ export type NumberInputProps = Omit<
 
 const EPSILON = 1e-9;
 
+const decimalPlacesOf = (step: number): number => {
+  if (!Number.isFinite(step) || step % 1 === 0) return 0;
+  const parts = String(step).split(".");
+  return parts[1]?.length ?? 0;
+};
+
 const formatValue = (value?: number): string => {
   if (value === undefined || !Number.isFinite(value)) {
     return "";
@@ -96,13 +102,25 @@ function NumberInput({
   "aria-invalid": ariaInvalid,
   ...props
 }: NumberInputProps) {
-  const [rawValue, setRawValue] = React.useState(formatValue(value));
+  const decimalPlaces = React.useMemo(() => decimalPlacesOf(step), [step]);
+
+  const roundToStep = React.useCallback(
+    (v: number): number => {
+      if (decimalPlaces === 0) return v;
+      return Number(v.toFixed(decimalPlaces));
+    },
+    [decimalPlaces],
+  );
+
+  const [rawValue, setRawValue] = React.useState(
+    formatValue(value !== undefined ? roundToStep(value) : undefined),
+  );
   const [hasValidationError, setHasValidationError] = React.useState(false);
 
   React.useEffect(() => {
-    const nextValue = formatValue(value);
+    const nextValue = formatValue(value !== undefined ? roundToStep(value) : undefined);
     setRawValue((prev) => (prev === nextValue ? prev : nextValue));
-  }, [value]);
+  }, [roundToStep, value]);
 
   const commitValue = React.useCallback(
     (nextRawValue: string) => {
@@ -123,7 +141,7 @@ function NumberInput({
     if (disabled) return;
     const current = Number(rawValue);
     const base = Number.isFinite(current) ? current : (min ?? 0);
-    const next = clamp(base + step, min, max);
+    const next = roundToStep(clamp(base + step, min, max));
     const nextRawValue = String(next);
     setRawValue(nextRawValue);
     commitValue(nextRawValue);
@@ -133,7 +151,7 @@ function NumberInput({
     if (disabled) return;
     const current = Number(rawValue);
     const base = Number.isFinite(current) ? current : (min ?? 0);
-    const next = clamp(base - step, min, max);
+    const next = roundToStep(clamp(base - step, min, max));
     const nextRawValue = String(next);
     setRawValue(nextRawValue);
     commitValue(nextRawValue);
@@ -154,7 +172,7 @@ function NumberInput({
     });
 
     if (result.valid && result.value !== undefined) {
-      const normalizedValue = String(clamp(result.value, min, max));
+      const normalizedValue = String(roundToStep(clamp(result.value, min, max)));
       setRawValue(normalizedValue);
       onValueChange?.(Number(normalizedValue));
       return;
