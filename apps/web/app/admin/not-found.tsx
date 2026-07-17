@@ -1,11 +1,11 @@
 import { Button } from "@phena/ui/components/button";
 import {
   Empty,
+  EmptyContent,
+  EmptyDescription,
   EmptyHeader,
   EmptyMedia,
   EmptyTitle,
-  EmptyDescription,
-  EmptyContent,
 } from "@phena/ui/components/empty";
 import { SearchIcon } from "lucide-react";
 import Link from "next/link";

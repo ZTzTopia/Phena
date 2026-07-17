@@ -1,5 +1,6 @@
 "use client";
 
+import { ScoreboardModel, SSEEventType } from "@phena/schema";
 import { Button } from "@phena/ui/components/button";
 import {
   Card,
@@ -8,16 +9,17 @@ import {
   CardContent,
   CardDescription,
 } from "@phena/ui/components/card";
+import { Spinner } from "@phena/ui/components/spinner";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { DetailedError, parseResponse } from "hono/client";
 import { PauseIcon, PlayIcon, RotateCcwIcon, ZapIcon, TrophyIcon } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
+import { QueryError } from "@/app/(admin)/_components/query-error";
 import { ContestOverview } from "@/app/(admin)/admin/dashboard/_components/contest-overview";
 import { useSSE } from "@/app/sse-provider";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { client } from "@/lib/api-client";
-import { ScoreboardModel, SSEEventType } from "@phena/schema";
 
 export default function AdminDashboardPage() {
   const queryClient = useQueryClient();
@@ -81,7 +83,12 @@ export default function AdminDashboardPage() {
     meta: { skipGlobalError: true },
   });
 
-  const { data: scoreboardData, isLoading: isScoreboardLoading } = useQuery({
+  const {
+    data: scoreboardData,
+    isLoading: isScoreboardLoading,
+    isError: isScoreboardError,
+    refetch: refetchScoreboard,
+  } = useQuery({
     queryKey: ["admin", "scoreboard"],
     queryFn: async () => {
       const res = await parseResponse(client.api.scoreboard.$get());
@@ -165,7 +172,11 @@ export default function AdminDashboardPage() {
           </CardHeader>
           <CardContent>
             {isScoreboardLoading ? (
-              <p className="text-muted-foreground py-4 text-center">Loading...</p>
+              <div className="flex items-center justify-center py-4">
+                <Spinner className="size-5" />
+              </div>
+            ) : isScoreboardError ? (
+              <QueryError onRetry={() => refetchScoreboard()} message="Failed to load scoreboard" />
             ) : topTeams.length === 0 ? (
               <p className="text-muted-foreground py-4 text-center">
                 No teams on the leaderboard yet.
@@ -175,15 +186,15 @@ export default function AdminDashboardPage() {
                 {topTeams.map((team) => (
                   <li
                     key={team.teamId}
-                    className="flex items-center justify-between bg-muted/50 px-3 py-2"
+                    className="bg-muted/50 flex items-center justify-between px-3 py-2"
                   >
                     <div className="flex items-center gap-3">
                       <span className="text-muted-foreground text-sm tabular-nums">
                         #{team.rank}
                       </span>
-                      <span className="font-medium text-sm">{team.teamName}</span>
+                      <span className="text-sm font-medium">{team.teamName}</span>
                     </div>
-                    <span className="font-bold text-sm tabular-nums">
+                    <span className="text-sm font-bold tabular-nums">
                       {team.totalPoints.toLocaleString()}
                     </span>
                   </li>

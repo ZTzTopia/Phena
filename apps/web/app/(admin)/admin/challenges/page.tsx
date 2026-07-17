@@ -14,6 +14,7 @@ import { DetailedError, parseResponse } from "hono/client";
 import { PlusIcon } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
+import { QueryError } from "@/app/(admin)/_components/query-error";
 import { ChallengeForm } from "@/app/(admin)/admin/challenges/_components/challenge-form";
 import Loading from "@/app/(admin)/loading";
 import { ConfirmDialog } from "@/components/confirm-dialog";
@@ -45,7 +46,7 @@ export default function ChallengesPage() {
     setSearchInput,
   } = usePaginatedSearchState({ initialPageSize: 20 });
 
-  const { data, isLoading, isFetching } = useQuery({
+  const { data, isLoading, isFetching, isError, refetch } = useQuery({
     queryKey: [
       "admin",
       "challenges",
@@ -258,6 +259,10 @@ export default function ChallengesPage() {
 
   if (isLoading) {
     return <Loading />;
+  }
+
+  if (isError && !data) {
+    return <QueryError onRetry={() => refetch()} message="Failed to load challenges" />;
   }
 
   return (

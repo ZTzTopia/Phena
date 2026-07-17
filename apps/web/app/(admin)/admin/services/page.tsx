@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { DetailedError, parseResponse } from "hono/client";
 import { useState } from "react";
 import { toast } from "sonner";
+import { QueryError } from "@/app/(admin)/_components/query-error";
 import { MissingServicesAlert } from "@/app/(admin)/admin/services/_components/service-missing-alert";
 import Loading from "@/app/(admin)/loading";
 import { ConfirmDialog } from "@/components/confirm-dialog";
@@ -28,7 +29,7 @@ export default function ServicesPage() {
     setSearchInput,
   } = usePaginatedSearchState({ initialPageSize: 20 });
 
-  const { data, isLoading, isFetching } = useQuery({
+  const { data, isLoading, isFetching, isError, refetch } = useQuery({
     queryKey: [
       "admin",
       "services",
@@ -128,6 +129,10 @@ export default function ServicesPage() {
 
   if (isLoading) {
     return <Loading />;
+  }
+
+  if (isError && !data) {
+    return <QueryError onRetry={() => refetch()} message="Failed to load services" />;
   }
 
   return (

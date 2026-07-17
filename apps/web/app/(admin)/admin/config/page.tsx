@@ -5,22 +5,21 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@phena/ui/components/t
 import { useQuery } from "@tanstack/react-query";
 import { parseResponse } from "hono/client";
 import { CogIcon, FlagIcon, SettingsIcon, TrophyIcon } from "lucide-react";
+import { QueryError } from "@/app/(admin)/_components/query-error";
 import { ContestConfigCard } from "@/app/(admin)/admin/config/_components/contest-config-card";
 import { FlagConfigCard } from "@/app/(admin)/admin/config/_components/flag-config-card";
 import { ScoringConfigCard } from "@/app/(admin)/admin/config/_components/scoring-config-card";
 import { SystemConfigCard } from "@/app/(admin)/admin/config/_components/system-config-card";
+import Loading from "@/app/(admin)/loading";
 import { client } from "@/lib/api-client";
 
-function Loading() {
-  return (
-    <div className="flex items-center justify-center py-8">
-      <div className="border-primary h-8 w-8 animate-spin rounded-full border-4 border-t-transparent" />
-    </div>
-  );
-}
-
 export default function ConfigPage() {
-  const { data: configEntries, isLoading } = useQuery({
+  const {
+    data: configEntries,
+    isLoading,
+    isError,
+    refetch,
+  } = useQuery({
     queryKey: ["admin", "config"],
     queryFn: async () => {
       const res = await parseResponse(client.api.config.$get());
@@ -30,6 +29,10 @@ export default function ConfigPage() {
 
   if (isLoading) {
     return <Loading />;
+  }
+
+  if (isError && !configEntries) {
+    return <QueryError onRetry={() => refetch()} message="Failed to load configuration" />;
   }
 
   const config: Record<string, string | number | boolean | null | undefined> = {};

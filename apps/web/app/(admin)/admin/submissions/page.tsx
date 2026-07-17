@@ -2,6 +2,8 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { parseResponse } from "hono/client";
+import { QueryError } from "@/app/(admin)/_components/query-error";
+import Loading from "@/app/(admin)/loading";
 import { ServerDataTable } from "@/components/data-table";
 import { usePaginatedSearchState } from "@/hooks/use-paginated-search-state";
 import { client } from "@/lib/api-client";
@@ -18,7 +20,7 @@ export default function SubmissionsPage() {
     setSearchInput,
   } = usePaginatedSearchState({ initialPageSize: 20 });
 
-  const { data, isFetching } = useQuery({
+  const { data, isLoading, isFetching, isError, refetch } = useQuery({
     queryKey: [
       "admin",
       "submissions",
@@ -34,6 +36,14 @@ export default function SubmissionsPage() {
     },
     placeholderData: (previousData) => previousData,
   });
+
+  if (isLoading) {
+    return <Loading />;
+  }
+
+  if (isError && !data) {
+    return <QueryError onRetry={() => refetch()} message="Failed to load submissions" />;
+  }
 
   return (
     <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">

@@ -14,6 +14,7 @@ import { DetailedError, parseResponse } from "hono/client";
 import { PlusIcon } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
+import { QueryError } from "@/app/(admin)/_components/query-error";
 import { TeamForm } from "@/app/(admin)/admin/teams/_components/team-form";
 import Loading from "@/app/(admin)/loading";
 import { ConfirmDialog } from "@/components/confirm-dialog";
@@ -45,7 +46,7 @@ export default function TeamsPage() {
     setSearchInput,
   } = usePaginatedSearchState({ initialPageSize: 20 });
 
-  const { data, isLoading, isFetching } = useQuery({
+  const { data, isLoading, isFetching, isError, refetch } = useQuery({
     queryKey: ["admin", "teams", { page: pageIndex + 1, limit: pageSize, search: debouncedSearch }],
     queryFn: async () =>
       parseResponse(
@@ -186,6 +187,10 @@ export default function TeamsPage() {
 
   if (isLoading) {
     return <Loading />;
+  }
+
+  if (isError && !data) {
+    return <QueryError onRetry={() => refetch()} message="Failed to load teams" />;
   }
 
   return (
