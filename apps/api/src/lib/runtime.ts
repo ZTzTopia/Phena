@@ -2,6 +2,7 @@ import { ChallengeService } from "@api/services/challenge";
 import { ConfigService } from "@api/services/config";
 import { EventService } from "@api/services/event";
 import { FlagGenerationService } from "@api/services/flag-generation";
+import { NotificationService } from "@api/services/notification";
 import { SubmissionService } from "@api/services/submission";
 import { SystemLogService } from "@api/services/system-log";
 import { BunContext, BunRuntime } from "@effect/platform-bun";
@@ -23,6 +24,7 @@ export const AppEnvironment = Layer.mergeAll(
   ConfigService.Default,
   EventService.Default,
   FlagGenerationService.Default,
+  NotificationService.Default,
   ScoreService.Default,
   SubmissionService.Default,
   SystemLogService.Default,

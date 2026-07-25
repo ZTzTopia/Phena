@@ -11,6 +11,7 @@ import {
 import { Separator } from "@phena/ui/components/separator";
 import Link from "next/link";
 import React from "react";
+import { NotificationBell } from "@/app/(participant)/_components/notification-bell";
 import { SidebarTrigger } from "@/app/(participant)/_components/sidebar-trigger";
 import { useBreadcrumbs } from "@/lib/breadcrumb-utils";
 
@@ -49,6 +50,9 @@ export function ParticipantSiteHeader() {
             )}
           </BreadcrumbList>
         </Breadcrumb>
+        <div className="ml-auto">
+          <NotificationBell />
+        </div>
       </div>
     </header>
   );

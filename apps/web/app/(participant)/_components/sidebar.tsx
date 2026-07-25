@@ -12,7 +12,7 @@ import {
   SidebarMenuItem,
 } from "@phena/ui/components/sidebar";
 import Link from "next/link";
-import { Chart, Circle, Flag, MapPin, Settings2, Sword } from "pixelarticons/react";
+import { Bell, Chart, Circle, Flag, MapPin, Settings2, Sword } from "pixelarticons/react";
 import { useAuth } from "@/app/auth-provider";
 import { ParticipantNavMain } from "./nav-main";
 import { ParticipantNavSecondary } from "./nav-secondary";
@@ -41,6 +41,12 @@ const data = {
       title: "Rankings",
       url: "/contest/rankings",
       icon: Chart,
+    },
+    {
+      title: "Notifications",
+      url: "/contest/notifications",
+      icon: Bell,
+      requireRole: "team" as Role,
     },
   ],
   navSecondary: [

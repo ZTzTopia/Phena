@@ -1,10 +1,11 @@
-import "@phena/ui/components/8bit/styles/retro.css";
 import type { Metadata } from "next";
-import "@phena/ui/globals.css";
+import "@phena/ui/components/8bit/styles/retro.css";
 import { TooltipProvider } from "@phena/ui/components/tooltip";
+import "@phena/ui/globals.css";
 import { cn } from "@phena/ui/lib/utils";
-import { Geist, Lora, Press_Start_2P, VT323, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Lora, Press_Start_2P, VT323 } from "next/font/google";
 import { verifySession } from "@/lib/auth";
+import { NotificationToastListener } from "./_components/notification-toast-listener";
 import { AuthProvider } from "./auth-provider";
 import { QueryProvider } from "./query-provider";
 import { SSEProvider } from "./sse-provider";
@@ -50,6 +51,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <QueryProvider>
           <AuthProvider initialTeam={team}>
             <SSEProvider>
+              <NotificationToastListener />
               <TooltipProvider>{children}</TooltipProvider>
             </SSEProvider>
           </AuthProvider>

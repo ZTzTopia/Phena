@@ -13,6 +13,7 @@ import challengeRoutes from "./routes/challenges";
 import configRoutes from "./routes/config";
 import contestRoutes from "./routes/contest";
 import eventRoutes from "./routes/events";
+import notificationRoutes from "./routes/notifications";
 import scoreboardRoutes from "./routes/scoreboard";
 import serviceRoutes from "./routes/services";
 import submissionRoutes from "./routes/submissions";
@@ -37,6 +38,7 @@ const routes = new Hono()
   .route("/config", configRoutes)
   .route("/contest", contestRoutes)
   .route("/events", eventRoutes)
+  .route("/notifications", notificationRoutes)
   .route("/scoreboard", scoreboardRoutes)
   .route("/services", serviceRoutes)
   .route("/submissions", submissionRoutes)

@@ -4,17 +4,18 @@ import { ScoreboardModel, SSEEventType } from "@phena/schema";
 import { Button } from "@phena/ui/components/button";
 import {
   Card,
-  CardHeader,
-  CardTitle,
   CardContent,
   CardDescription,
+  CardHeader,
+  CardTitle,
 } from "@phena/ui/components/card";
 import { Spinner } from "@phena/ui/components/spinner";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { DetailedError, parseResponse } from "hono/client";
-import { PauseIcon, PlayIcon, RotateCcwIcon, ZapIcon, TrophyIcon } from "lucide-react";
+import { PauseIcon, PlayIcon, RotateCcwIcon, TrophyIcon, ZapIcon } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
+import { FireNotificationDialog } from "@/app/(admin)/_components/fire-notification-dialog";
 import { QueryError } from "@/app/(admin)/_components/query-error";
 import { ContestOverview } from "@/app/(admin)/admin/dashboard/_components/contest-overview";
 import { useSSE } from "@/app/sse-provider";
@@ -159,6 +160,8 @@ export default function AdminDashboardPage() {
               <RotateCcwIcon className="mr-2 size-4" />
               Reset Contest
             </Button>
+            <hr className="border-border" />
+            <FireNotificationDialog />
           </CardContent>
         </Card>
 

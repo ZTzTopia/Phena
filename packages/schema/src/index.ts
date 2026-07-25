@@ -6,6 +6,7 @@ export * from "./constants";
 export * from "./enums";
 export * from "./event";
 export * from "./lib/public-id";
+export * from "./notification";
 export * from "./scoreboard";
 export * from "./service";
 export * from "./submissions";

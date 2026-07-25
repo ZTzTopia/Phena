@@ -2,7 +2,9 @@ import { defineRelations } from "drizzle-orm";
 import * as challenges from "./schema/challenges";
 import * as checkerResults from "./schema/checker-results";
 import * as config from "./schema/config";
+import * as configStore from "./schema/config-store";
 import * as flags from "./schema/flags";
+import * as notifications from "./schema/notifications";
 import * as scores from "./schema/scores";
 import * as serviceOperations from "./schema/service-operations";
 import * as serviceScores from "./schema/service-scores";
@@ -21,10 +23,12 @@ const schema = {
   ...scores,
   ...checkerResults,
   ...config,
+  ...configStore,
   ...serviceOperations,
   ...serviceScores,
   ...sshConfigs,
   ...systemLogs,
+  ...notifications,
 };
 
 export const relations = defineRelations(schema, (r) => ({
@@ -127,4 +131,11 @@ export const relations = defineRelations(schema, (r) => ({
     }),
   },
   config: {},
+  configStore: {},
+  notifications: {
+    team: r.one.teams({
+      from: r.notifications.teamId,
+      to: r.teams.id,
+    }),
+  },
 }));
