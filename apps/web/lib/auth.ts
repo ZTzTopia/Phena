@@ -1,10 +1,12 @@
+import type { AppType } from "@api/index";
 import type { Role, TeamResponse } from "@phena/schema";
 import { AUTH_COOKIE_NAME } from "@phena/schema";
 import { hc, parseResponse } from "hono/client";
 import { cookies } from "next/headers";
 import { forbidden, redirect } from "next/navigation";
 import { cache } from "react";
-import { API_BASE_URL, type AppWithErrors } from "@/lib/api-client";
+
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "/";
 
 const getToken = async () => (await cookies()).get(AUTH_COOKIE_NAME)?.value;
 
@@ -19,7 +21,7 @@ const customFetch = async (input: RequestInfo | URL, init?: RequestInit) => {
   return fetch(input, { ...init, headers });
 };
 
-const serverClient = hc<AppWithErrors>(API_BASE_URL, {
+const serverClient = hc<AppType>(API_BASE_URL, {
   fetch: customFetch,
 });
 
