@@ -1,15 +1,18 @@
 import { drizzle } from "drizzle-orm/node-postgres";
-import { Context, Effect, Layer } from "effect";
+import { Effect } from "effect";
+import { Pool } from "pg";
 import { relations } from "./relations";
 
-export const db = drizzle({
-  connection: {
-    connectionString: process.env.DATABASE_URL ?? "postgresql://phena:phena@localhost:5432/phena",
-    ssl: false,
-  },
-  relations,
-});
+const dbUrl = process.env.DATABASE_URL ?? "postgresql://phena:phena@localhost:5432/phena";
 
+const pool = new Pool({ connectionString: dbUrl, ssl: false });
+
+export const db = drizzle({ client: pool, relations });
 export type Database = typeof db;
-export class Db extends Context.Tag("Db")<Db, { readonly db: Database }>() {}
-export const DbLive = Layer.effect(Db, Effect.succeed({ db }));
+
+export class Db extends Effect.Service<Db>()("Db", {
+  scoped: Effect.gen(function* () {
+    yield* Effect.addFinalizer(() => Effect.promise(() => pool.end()));
+    return { db } as const;
+  }),
+}) {}

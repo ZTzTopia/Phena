@@ -7,7 +7,7 @@ import { SystemLogService } from "@api/services/system-log";
 import { BunContext, BunRuntime } from "@effect/platform-bun";
 import { Cause, Effect, Layer, Logger, LogLevel, ManagedRuntime } from "effect";
 import { HTTPException } from "hono/http-exception";
-import { DbLive } from "../db";
+import { Db } from "../db";
 import { ContestService } from "../services/contest";
 import { ScoreService } from "../services/score";
 import { ServiceService } from "../services/service";
@@ -15,8 +15,8 @@ import { TeamService } from "../services/team";
 import { domainErrors, type DomainError } from "./errors";
 import { RedisClient } from "./redis";
 
-const AppEnvironment = Layer.mergeAll(
-  DbLive,
+export const AppEnvironment = Layer.mergeAll(
+  Db.Default,
   RedisClient.Default,
   BunContext.layer,
   ChallengeService.Default,

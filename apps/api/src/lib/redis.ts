@@ -12,15 +12,15 @@ export class RedisClient extends Effect.Service<RedisClient>()("RedisClient", {
 
     const subscriber = new Redis(redisUrl, {
       maxRetriesPerRequest: 3,
-      lazyConnect: false,
+      lazyConnect: true,
     });
 
     client.on("error", (err) => {
-      Effect.runSync(Effect.logError(`Redis client error: ${String(err)}`));
+      Effect.runSync(Effect.logDebug(`Redis client: ${String(err)}`));
     });
 
     subscriber.on("error", (err) => {
-      Effect.runSync(Effect.logError(`Redis subscriber error: ${String(err)}`));
+      Effect.runSync(Effect.logDebug(`Redis subscriber: ${String(err)}`));
     });
 
     yield* Effect.addFinalizer(() =>

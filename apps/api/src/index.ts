@@ -3,9 +3,9 @@ import { Effect } from "effect";
 import { Hono } from "hono";
 import { openAPIRouteHandler } from "hono-openapi";
 import { cors } from "hono/cors";
-import "zod-openapi/extend";
 import { HTTPException } from "hono/http-exception";
-import { runPromise } from "./lib/runtime";
+import "zod-openapi/extend";
+import { AppEnvironment, BunRuntime } from "./lib/runtime";
 import { checkConnectionsWithRetry } from "./lib/startup";
 import { effectLogger } from "./middleware/logger";
 import authRoutes from "./routes/auth";
@@ -68,12 +68,17 @@ const main = new Hono()
   .get("/docs", Scalar({ url: "/openapi.json" }))
   .route("/", api);
 
-await runPromise(checkConnectionsWithRetry);
-await runPromise(ContestService.use((svc) => svc.scheduleStartIfNeeded()));
+const program = Effect.gen(function* () {
+  yield* checkConnectionsWithRetry;
+  yield* ContestService.use((svc) => svc.scheduleStartIfNeeded());
 
-export default {
-  port: process.env.PORT ? parseInt(process.env.PORT) : 3001,
-  fetch: main.fetch,
-  development: process.env.NODE_ENV === "development",
-};
+  const server = Bun.serve({
+    port: Number(process.env.PORT) || 3001,
+    fetch: main.fetch,
+  });
+  yield* Effect.addFinalizer(() => Effect.sync(() => server.stop(true)));
+  yield* Effect.never;
+}).pipe(Effect.onExit(() => Effect.logInfo("Shutting down gracefully...")));
+
+BunRuntime.runMain(Effect.scoped(program.pipe(Effect.provide(AppEnvironment))));
 export type AppType = typeof api;

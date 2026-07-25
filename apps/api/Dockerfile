@@ -8,7 +8,7 @@ RUN bun install --frozen-lockfile
 FROM base AS build
 COPY --from=install /app/node_modules ./node_modules
 COPY . .
-RUN bun build src/server.ts --outdir dist
+RUN bun build src/index.ts --outdir dist
 
 FROM base AS release
 COPY --from=build /app/dist ./dist
@@ -20,4 +20,4 @@ ENV PORT=3001
 
 EXPOSE 3001
 
-CMD ["bun", "run", "dist/server.js"]
+CMD ["bun", "run", "dist/index.js"]
