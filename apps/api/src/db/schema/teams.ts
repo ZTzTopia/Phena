@@ -1,3 +1,4 @@
+import { ROLES } from "@phena/schema";
 import { bigserial, index, pgTable, text, timestamp, uniqueIndex } from "drizzle-orm/pg-core";
 import { nanoid } from "nanoid";
 
@@ -13,7 +14,7 @@ export const teams = pgTable(
     name: text("name").notNull().unique(),
     // email: text("email").notNull().unique(),
     password: text("password").notNull(),
-    role: text("role", { enum: ["admin", "team"] })
+    role: text("role", { enum: [...ROLES] })
       .notNull()
       .default("team"),
 

@@ -4,6 +4,7 @@ import "@phena/ui/globals.css";
 import { TooltipProvider } from "@phena/ui/components/tooltip";
 import { cn } from "@phena/ui/lib/utils";
 import { Geist, Lora, Press_Start_2P, VT323, Geist_Mono } from "next/font/google";
+import { verifySession } from "@/lib/auth";
 import { AuthProvider } from "./auth-provider";
 import { QueryProvider } from "./query-provider";
 import { SSEProvider } from "./sse-provider";
@@ -35,15 +36,19 @@ export const metadata: Metadata = {
   description: "Attack & Defense CTF Platform",
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const team = await verifySession();
+
   return (
     <html
       lang="en"
       className={cn("dark", loraHeading.variable, geist.variable, "font-mono", geistMono.variable)}
     >
-      <body className={`antialiased ${pressStart2P.variable} ${vt323.variable}`}>
+      <body
+        className={`flex min-h-svh flex-col antialiased ${pressStart2P.variable} ${vt323.variable}`}
+      >
         <QueryProvider>
-          <AuthProvider>
+          <AuthProvider initialTeam={team}>
             <SSEProvider>
               <TooltipProvider>{children}</TooltipProvider>
             </SSEProvider>

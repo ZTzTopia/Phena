@@ -1,9 +1,10 @@
 import z from "zod/v4";
+import { RoleSchema } from "./types";
 
 export const TeamResponseSchema = z.object({
   id: z.string(),
   name: z.string(),
-  role: z.enum(["team", "admin"]),
+  role: RoleSchema,
 });
 
 export type TeamResponse = z.infer<typeof TeamResponseSchema>;
@@ -12,6 +13,7 @@ export const AuthModel = {
   login: z.object({
     name: z.string().min(2),
     password: z.string().min(3),
+    role: RoleSchema.optional(),
   }),
   register: z.object({
     name: z.string().min(2).max(100),
@@ -19,7 +21,6 @@ export const AuthModel = {
   }),
   loginResponse: z.object({
     team: TeamResponseSchema,
-    token: z.string(),
   }),
   registerResponse: z.object({
     team: TeamResponseSchema,

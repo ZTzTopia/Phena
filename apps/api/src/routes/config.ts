@@ -150,6 +150,7 @@ const app = new Hono()
         },
       },
     }),
+    requireRole("admin"),
     validator("json", ConfigModel.flagPreviewRequest),
     async (c) => {
       const { template } = c.req.valid("json");

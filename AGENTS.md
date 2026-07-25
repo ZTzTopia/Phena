@@ -4,9 +4,9 @@ Phena = Attack & Defense CTF Platform. Uses Bun, Turbo, Oxlint/Oxfmt.
 
 ## Tech Stack
 
-- Package Manager & Runtime: Bun (v1.2.20)
-- Frontend: Next.js 14 (App Router), React 18, Tailwind CSS 4, TanStack Query, D3.js
-- Backend: Bun, Hono, Drizzle ORM, PostgreSQL, Effect, Redis, Vitest, Zod
+- Package Manager & Runtime: Bun
+- Frontend: Next.js 16 (App Router), React 19, Tailwind CSS 4, TanStack Query, D3.js
+- Backend: Bun, Hono, Drizzle ORM, PostgreSQL, EffectTS, Redis, Zod
 - UI Components: shadcn/ui (exported via @phena/ui)
 
 ## Workspace Structure

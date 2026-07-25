@@ -19,11 +19,6 @@ import { ParticipantNavSecondary } from "./nav-secondary";
 import { ParticipantNavUser } from "./nav-user";
 
 const data = {
-  user: {
-    name: "shadcn",
-    email: "m@example.com",
-    avatar: "/avatars/shadcn.jpg",
-  },
   navMain: [
     {
       title: "Contest",
@@ -73,6 +68,7 @@ export function ParticipantSidebar({ ...props }: React.ComponentProps<typeof Sid
   const avatar = "";
   const initials = name ? getInitials(name) : "?";
   const role = (team?.role ?? "") as Role;
+  const isTeam = role === "team";
 
   return (
     <Sidebar collapsible="icon" {...props}>
@@ -95,11 +91,13 @@ export function ParticipantSidebar({ ...props }: React.ComponentProps<typeof Sid
       </SidebarHeader>
       <SidebarContent>
         <ParticipantNavMain role={role} items={data.navMain} />
-        <ParticipantNavSecondary items={data.navSecondary} className="mt-auto" />
+        {isTeam && <ParticipantNavSecondary items={data.navSecondary} className="mt-auto" />}
       </SidebarContent>
-      <SidebarFooter>
-        <ParticipantNavUser user={{ name, avatar, initials }} />
-      </SidebarFooter>
+      {isTeam && (
+        <SidebarFooter>
+          <ParticipantNavUser user={{ name, avatar, initials }} />
+        </SidebarFooter>
+      )}
     </Sidebar>
   );
 }

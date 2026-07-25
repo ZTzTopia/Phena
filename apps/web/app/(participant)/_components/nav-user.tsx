@@ -33,9 +33,9 @@ export function ParticipantNavUser({
   const { logout } = useAuth();
   const router = useRouter();
 
-  const handleLogout = () => {
-    logout();
-    router.push("/admin");
+  const handleLogout = async () => {
+    await logout();
+    router.push("/");
   };
 
   return (

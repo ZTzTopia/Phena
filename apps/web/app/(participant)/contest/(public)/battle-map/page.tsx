@@ -1,7 +1,7 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@phena/ui/components/8bit/card";
-import { LeafletBattleMapWrapper } from "@/app/(participant)/contest/battle-map/_components/leaflet-battle-map-wrapper";
+import { LeafletBattleMapWrapper } from "@/app/(participant)/contest/(public)/battle-map/_components/leaflet-battle-map-wrapper";
 
 const teamsMock: {
   id: string;

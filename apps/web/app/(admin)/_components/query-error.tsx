@@ -26,12 +26,12 @@ export function QueryError({
         <EmptyDescription>Something went wrong. Please try again.</EmptyDescription>
       </EmptyHeader>
       <EmptyContent>
-        {onRetry ? (
+        {onRetry && (
           <Button variant="outline" onClick={onRetry}>
             <RefreshCwIcon className="size-4" />
             Try Again
           </Button>
-        ) : null}
+        )}
       </EmptyContent>
     </Empty>
   );

@@ -17,7 +17,7 @@ bunx --bun shadcn@latest add <component>   # Add a shadcn component
 
 ### Folder Structure
 
-Next.js 14 App Router with route groups:
+Next.js 16 App Router with route groups:
 
 ```text
 app/
@@ -65,3 +65,4 @@ app/(participant)/contest/challenges/[id]/
 - **Private folders**: underscore prefix (`_components`, `_hooks`, `_types`)
 - **Error boundaries**: Root `app/global-error.tsx` applies to all routes
 - **404 pages**: Separate `not-found.tsx` per route group for different UX
+- **403 pages**: Separate `forbidden.tsx` per route group, same convention as `not-found.tsx`. Guard layouts that call `forbidden()` must live one segment **below** the group's `forbidden.tsx` (e.g. `(admin)/admin/layout.tsx`, not `(admin)/layout.tsx`) — `forbidden()` thrown in a layout resolves to the **parent** segment's boundary, not its own.

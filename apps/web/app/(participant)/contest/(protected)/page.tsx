@@ -38,9 +38,9 @@ const mockStats = {
 };
 
 export default function MissionCenterPage() {
-  const { team, isLoading: isAuthLoading } = useAuth();
+  const { team } = useAuth();
 
-  if (isAuthLoading || !team) {
+  if (!team) {
     return <Loading />;
   }
 

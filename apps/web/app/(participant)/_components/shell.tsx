@@ -1,13 +1,13 @@
 "use client";
 
 import { SidebarInset, SidebarProvider } from "@phena/ui/components/sidebar";
+import { Toaster } from "@phena/ui/components/sonner";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Toaster } from "sonner";
+import { ParticipantSidebar } from "@/app/(participant)/_components/sidebar";
 import { ParticipantSiteHeader } from "@/app/(participant)/_components/site-header";
-import { ParticipantSidebar } from "./_components/sidebar";
 
-export default function ParticipantLayout({ children }: { children: React.ReactNode }) {
+export function ParticipantShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const [sidebarOpen, setSidebarOpen] = useState(pathname !== "/");
 

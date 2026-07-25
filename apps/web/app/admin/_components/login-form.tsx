@@ -2,7 +2,6 @@
 
 /* eslint-disable react/no-children-prop */
 import type { AuthModel } from "@phena/schema";
-import { Alert, AlertDescription } from "@phena/ui/components/alert";
 import { Button } from "@phena/ui/components/button";
 import {
   Card,
@@ -16,28 +15,19 @@ import { Input } from "@phena/ui/components/input";
 import { cn } from "@phena/ui/lib/utils";
 import { useLoginForm } from "@/hooks/use-login-form";
 
-export function AdminLoginForm({
+export function LoginForm({
   className,
   onFormSubmit,
-  error,
   isLoading,
-  autoFillValues,
   ...props
 }: {
   className?: string;
   onFormSubmit?: (data: AuthModel["login"]) => void;
-  error?: string | null;
   isLoading?: boolean;
-  autoFillValues?: { name: string; password: string };
 }) {
-  const { form, setFieldValue } = useLoginForm({
+  const { form } = useLoginForm({
     onSubmit: onFormSubmit,
   });
-
-  if (autoFillValues) {
-    setFieldValue("name", autoFillValues.name);
-    setFieldValue("password", autoFillValues.password);
-  }
 
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
@@ -56,11 +46,6 @@ export function AdminLoginForm({
             }}
           >
             <div className="flex flex-col gap-6">
-              {error && (
-                <Alert variant="destructive">
-                  <AlertDescription>{error}</AlertDescription>
-                </Alert>
-              )}
               <form.Field
                 name="name"
                 children={(field) => {
@@ -71,6 +56,7 @@ export function AdminLoginForm({
                       <Input
                         id="name"
                         name={field.name}
+                        type="text"
                         value={field.state.value}
                         onBlur={field.handleBlur}
                         onChange={(e) => field.handleChange(e.target.value)}

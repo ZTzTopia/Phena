@@ -1,10 +1,10 @@
 "use client";
 
-import type { AuthModel } from "@phena/schema";
-import { AuthModel as authModel } from "@phena/schema";
+import type { AuthModel as AuthModelType } from "@phena/schema";
+import { AuthModel } from "@phena/schema";
 import { useForm } from "@tanstack/react-form";
 
-type Login = AuthModel["login"];
+type Login = AuthModelType["login"];
 
 export interface UseLoginFormOptions {
   defaultValues?: Partial<Login>;
@@ -19,7 +19,7 @@ export function useLoginForm(options: UseLoginFormOptions = {}) {
       ...options.defaultValues,
     },
     validators: {
-      onSubmit: authModel.login,
+      onSubmit: AuthModel.login,
     },
     onSubmit: async ({ value }) => {
       options.onSubmit?.(value);

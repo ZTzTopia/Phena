@@ -28,7 +28,7 @@ import { useAuth } from "@/app/auth-provider";
 import { client } from "@/lib/api-client";
 
 export default function ChallengesPage() {
-  const { team, isLoading: isAuthLoading } = useAuth();
+  const { team } = useAuth();
   const [searchInput, setSearchInput] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
 
@@ -52,7 +52,7 @@ export default function ChallengesPage() {
 
   const challenges = data?.challenges ?? [];
 
-  if (isAuthLoading || !team) {
+  if (!team) {
     return <Loading />;
   }
 

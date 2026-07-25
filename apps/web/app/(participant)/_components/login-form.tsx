@@ -17,21 +17,16 @@ import { useLoginForm } from "@/hooks/use-login-form";
 export function LoginForm({
   className,
   onFormSubmit,
-  autoFillValues,
+  isLoading,
   ...props
 }: {
   className?: string;
   onFormSubmit?: (data: AuthModel["login"]) => void;
-  autoFillValues?: { name: string; password: string };
+  isLoading?: boolean;
 }) {
-  const { form, setFieldValue } = useLoginForm({
+  const { form } = useLoginForm({
     onSubmit: onFormSubmit,
   });
-
-  if (autoFillValues) {
-    setFieldValue("name", autoFillValues.name);
-    setFieldValue("password", autoFillValues.password);
-  }
 
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
@@ -39,7 +34,7 @@ export function LoginForm({
         <CardHeader>
           <CardTitle className="text-2xl">Login</CardTitle>
           <CardDescription className="text-xs">
-            Enter your email below to login to your account
+            Enter your team name to login to your account
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -56,15 +51,15 @@ export function LoginForm({
                   const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
                   return (
                     <Field data-invalid={isInvalid}>
-                      <FieldLabel htmlFor="name">Email</FieldLabel>
+                      <FieldLabel htmlFor="name">Team Name</FieldLabel>
                       <Input
                         id="name"
                         name={field.name}
-                        type="email"
+                        type="text"
                         value={field.state.value}
                         onBlur={field.handleBlur}
                         onChange={(e) => field.handleChange(e.target.value)}
-                        placeholder="m@example.com"
+                        placeholder="Enter your team name"
                         aria-invalid={isInvalid}
                         required
                       />
@@ -87,6 +82,7 @@ export function LoginForm({
                         value={field.state.value}
                         onBlur={field.handleBlur}
                         onChange={(e) => field.handleChange(e.target.value)}
+                        placeholder="********"
                         aria-invalid={isInvalid}
                         required
                       />
@@ -95,8 +91,8 @@ export function LoginForm({
                   );
                 }}
               />
-              <Button type="submit" className="w-full">
-                Login
+              <Button type="submit" className="w-full" disabled={isLoading}>
+                {isLoading ? "Logging in..." : "Login"}
               </Button>
             </div>
           </form>

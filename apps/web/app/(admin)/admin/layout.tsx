@@ -1,11 +1,12 @@
-"use client";
-
 import { SidebarInset, SidebarProvider } from "@phena/ui/components/sidebar";
 import { Toaster } from "@phena/ui/components/sonner";
 import { AdminSidebar } from "@/app/(admin)/_components/sidebar";
 import { AdminSiteHeader } from "@/app/(admin)/_components/site-header";
+import { requireRole } from "@/lib/auth";
 
-export default function AdminLayout({ children }: { children: React.ReactNode }) {
+export default async function AdminAreaLayout({ children }: { children: React.ReactNode }) {
+  await requireRole("/admin", "admin");
+
   return (
     <>
       <SidebarProvider

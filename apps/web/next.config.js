@@ -1,5 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  experimental: {
+    authInterrupts: true,
+  },
   transpilePackages: ["@phena/types", "@phena/config", "@phena/ui"],
   typescript: {
     ignoreBuildErrors: true,

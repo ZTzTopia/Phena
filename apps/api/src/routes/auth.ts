@@ -1,6 +1,6 @@
 import { sJson } from "@api/lib/helpers";
 import { verifyPassword } from "@api/lib/password";
-import { authMiddleware } from "@api/middleware/auth";
+import { authMiddleware, optionalAuthMiddleware } from "@api/middleware/auth";
 import { AUTH_COOKIE_NAME, COOKIE_OPTIONS } from "@phena/schema";
 import { AuthModel, CommonModel } from "@phena/schema";
 import { Effect } from "effect";
@@ -102,14 +102,18 @@ const app = new Hono()
     }),
     validator("json", AuthModel.login),
     async (c) => {
-      const { name, password } = c.req.valid("json");
+      const { name, password, role } = c.req.valid("json");
 
       const team = await runPromise(TeamService.use((svc) => svc.getByName(name)));
       if (!team) {
         throw new HTTPException(401, { message: "Invalid credentials" });
       }
 
-      const valid = verifyPassword(password, team.password);
+      if (role && team.role !== role) {
+        throw new HTTPException(403, { message: "Invalid credentials for this login" });
+      }
+
+      const valid = await runPromise(verifyPassword(password, team.password));
       if (!valid) {
         throw new HTTPException(401, { message: "Invalid credentials" });
       }
@@ -118,9 +122,6 @@ const app = new Hono()
         publicId: team.publicId,
         role: team.role,
       });
-      if (!token) {
-        throw new HTTPException(500, { message: "Failed to sign token" });
-      }
 
       setCookie(c, AUTH_COOKIE_NAME, token, COOKIE_OPTIONS);
 
@@ -130,7 +131,6 @@ const app = new Hono()
           name: team.name,
           role: team.role,
         },
-        token,
       });
     },
   )
@@ -149,7 +149,7 @@ const app = new Hono()
         },
       },
     }),
-    authMiddleware,
+    optionalAuthMiddleware,
     async (c) => {
       deleteCookie(c, AUTH_COOKIE_NAME, { path: "/" });
       return sJson(c, AuthModel.logoutResponse, { message: "Logged out successfully" });

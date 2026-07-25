@@ -1,8 +1,3 @@
-export enum TeamRole {
-  Admin = "admin",
-  Team = "team",
-}
-
 export enum MarkerStyle {
   Pin = "pin",
 }

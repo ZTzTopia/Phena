@@ -1,11 +1,12 @@
 import z from "zod/v4";
 import { PaginationMetaSchema } from "./common";
+import { RoleSchema } from "./types";
 
 export const TeamSchema = z.object({
   id: z.string(),
   internalId: z.number().optional(),
   name: z.string(),
-  role: z.enum(["team", "admin"]).optional(),
+  role: RoleSchema.optional(),
   createdAt: z
     .string()
     .or(z.date())
