@@ -9,10 +9,24 @@ declare module "@tanstack/react-query" {
   interface Register {
     mutationMeta: {
       skipGlobalError?: boolean;
+      extraErrorMessage?: string;
     };
   }
 }
 
+function formatApiError(error: unknown): string {
+  if (Array.isArray(error)) {
+    return error.map((e) => (typeof e === "string" ? e : (e?.message ?? String(e)))).join(", ");
+  }
+
+  if (typeof error === "string") {
+    return error;
+  }
+
+  return "An unexpected error occurred";
+}
+
+// TODO: When in production, remove the verbose error messages
 export function QueryProvider({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(
     () =>
@@ -23,16 +37,18 @@ export function QueryProvider({ children }: { children: React.ReactNode }) {
               return;
             }
 
-            toast.error(
+            const extraErrorMessage = query.meta?.extraErrorMessage as string | undefined;
+            const message =
               error instanceof DetailedError
-                ? error.detail.data.error
+                ? formatApiError(error.detail.data.error)
                 : error instanceof Error
                   ? error.message
-                  : "An unexpected error occurred",
-              {
-                id: `query-error-${query.queryHash}`,
-              },
-            );
+                  : (extraErrorMessage ?? "An unexpected error occurred");
+
+            console.error(message);
+            toast.error(message, {
+              id: `query-error-${query.queryHash}`,
+            });
           },
         }),
         mutationCache: new MutationCache({
@@ -41,16 +57,18 @@ export function QueryProvider({ children }: { children: React.ReactNode }) {
               return;
             }
 
-            toast.error(
+            const extraErrorMessage = mutation.meta?.extraErrorMessage as string | undefined;
+            const message =
               error instanceof DetailedError
-                ? error.detail.data.error
+                ? formatApiError(error.detail.data.error)
                 : error instanceof Error
                   ? error.message
-                  : "An unexpected error occurred",
-              {
-                id: `mutation-error-${mutation.mutationId}`,
-              },
-            );
+                  : (extraErrorMessage ?? "An unexpected error occurred");
+
+            console.error(message);
+            toast.error(message, {
+              id: `mutation-error-${mutation.mutationId}`,
+            });
           },
         }),
         defaultOptions: {
