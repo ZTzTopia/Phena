@@ -31,7 +31,12 @@ export default function Loading() {
 
   return (
     <div className="mx-auto flex w-full max-w-sm flex-1 flex-col items-center justify-center">
-      <LoadingScreen tips={randomTips} text="Loading" autoProgress={true} />
+      <LoadingScreen
+        tips={randomTips}
+        text="Loading"
+        autoProgress={true}
+        autoProgressDuration={16000}
+      />
     </div>
   );
 }
